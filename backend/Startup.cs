@@ -5,11 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using backend.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using backend.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend
 {
@@ -24,10 +29,23 @@ namespace backend
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>();
+
             //Enable CORS
-            services.AddCors(c =>
+            services.AddCors(options =>
             {
-                c.AddPolicy("AllowOrigin", option => option.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                options.AddPolicy("VueCorsPolicy", builder =>
+                {
+                    builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .WithOrigins("https://localhost:5001");
+                });
             });
 
             //JSON Serializer
@@ -41,22 +59,28 @@ namespace backend
             services.AddControllers();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
         {
-            //Enable CORS
-            app.UseCors(option => option.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors("VueCorsPolicy");
+
+            dbContext.Database.EnsureCreated();
+
+            app.UseMvc();
+
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSpaStaticFiles();
-            app.UseSpa(builder =>
+            app.UseSpa(configuration: builder =>
             {
                 if (env.IsDevelopment())
                 {
