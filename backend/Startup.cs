@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
+using backend.Services;
 
 namespace backend
 {
@@ -29,6 +30,8 @@ namespace backend
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAccountService, AccountService>();
+
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -53,7 +56,6 @@ namespace backend
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
-            // for frontend config
             services.AddSpaStaticFiles(configuration: options => { options.RootPath = "wwwroot"; });
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
