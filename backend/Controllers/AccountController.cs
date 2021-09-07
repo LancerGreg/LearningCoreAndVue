@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -19,19 +19,14 @@ namespace backend.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get() =>
-            Ok("All right");
-
-        [HttpPost]
+        [HttpPost("sign_up")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignUp([FromBody]SignUpUser modelUser) =>
             StatusCode((int)(await _accountService.SignUp(ModelState.IsValid, modelUser)));
 
-        [HttpPost]
+        [HttpPost("sign_in")]
         [ValidateAntiForgeryToken]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status302Found)]
@@ -40,7 +35,7 @@ namespace backend.Controllers
         public async Task<IActionResult> SignIn([FromBody]SignInUser modelUser) =>
             StatusCode((int)(await _accountService.SignIn(ModelState.IsValid, modelUser, !string.IsNullOrEmpty(modelUser.ReturnUrl) && Url.IsLocalUrl(modelUser.ReturnUrl))));
 
-        [HttpPost]
+        [HttpPost("logout")]
         [ValidateAntiForgeryToken]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Logout() =>

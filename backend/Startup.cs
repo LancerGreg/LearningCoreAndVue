@@ -16,6 +16,7 @@ using Newtonsoft.Json.Serialization;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using backend.Services;
+using Microsoft.OpenApi.Models;
 
 namespace backend
 {
@@ -37,6 +38,11 @@ namespace backend
 
             services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Friendes's Tree", Version = "v1" });
+            });
 
             //Enable CORS
             services.AddCors(options =>
@@ -80,6 +86,12 @@ namespace backend
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "api");
+            });
 
             app.UseSpaStaticFiles();
             app.UseSpa(configuration: builder =>

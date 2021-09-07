@@ -34,7 +34,7 @@ namespace backend.Services
                     return SignUpStatus.Error;
                 }
             }
-            return SignUpStatus.UserAlreadyExists;
+            return SignUpStatus.Success;
         }
 
         public async Task<SignInStatus> SignIn(bool isValid, SignInUser modelUser, bool returnUrl)
@@ -51,7 +51,7 @@ namespace backend.Services
                     return SignInStatus.InvalidLogin;
                 }
             }
-            return SignInStatus.Error;
+            return SignInStatus.Success;
         }
 
         public async Task<LogoutStatus> Logout()

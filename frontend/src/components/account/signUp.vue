@@ -63,10 +63,11 @@ export default {
   },
   methods: {
     toSignUn() {
-      axios.post(store.getters.URLS.API_URL + "Account/SignUp", {
-        Email: this.SignUpUser.Email,
-        Password: this.SignUpUser.Password,
-        PasswordConfirm: this.SignUpUser.PasswordConfirm
+      alert(store.getters.URLS.API_URL + "account/sign_up")
+      axios.post(store.getters.URLS.API_URL + "account/sign_up", {
+        email: this.SignUpUser.Email,
+        password: this.SignUpUser.Password,
+        passwordConfirm: this.SignUpUser.PasswordConfirm
       })
       .then((response) => {
           alert("User alredy exist")
