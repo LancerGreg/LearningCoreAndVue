@@ -5,6 +5,8 @@ using backend.Models;
 using backend.Services;
 using System;
 using Microsoft.AspNetCore.Http;
+using backend.Managers;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace backend.Controllers
 {
@@ -19,26 +21,43 @@ namespace backend.Controllers
             _accountService = accountService;
         }
 
+        [HttpGet("user_is_login")]
+        public JsonResult UserIsLogin() =>
+            new JsonResult(User.Identity.IsAuthenticated);
+
+        [HttpGet("user_credentiails")]
+        public async Task<IActionResult> UserCredentilas() =>
+            User.Identity.IsAuthenticated ? new JsonResult(await _accountService.GetUserCredentilas(User)) : BadRequest(new Error() { Code = "NotAuthenticated", Description = "User is not authenticated" });
+
         [HttpPost("sign_up")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignUp([FromBody]SignUpUser modelUser) =>
-            StatusCode((int)(await _accountService.SignUp(ModelState.IsValid, modelUser)));
+            GetActionResult(await _accountService.SignUp(ModelState.IsValid, modelUser));
 
         [HttpPost("sign_in")]
-        [ValidateAntiForgeryToken]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status302Found)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignIn([FromBody]SignInUser modelUser) =>
-            StatusCode((int)(await _accountService.SignIn(ModelState.IsValid, modelUser, !string.IsNullOrEmpty(modelUser.ReturnUrl) && Url.IsLocalUrl(modelUser.ReturnUrl))));
+            GetActionResult(await _accountService.SignIn(ModelState.IsValid, modelUser));
 
         [HttpPost("logout")]
-        [ValidateAntiForgeryToken]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Logout() =>
-            StatusCode((int)(await _accountService.Logout()));
+            GetActionResult(await _accountService.Logout());
+
+        private IActionResult GetActionResult(backend.Managers.ActionResult actionResult) {
+            if (actionResult._actionStatus == ActionStatus.Success)
+            {
+                return Ok(ActionStatus.Success.ToString());
+            }
+            else
+            {
+                if (actionResult._identityResult != null)
+                {
+                    return BadRequest(actionResult.GetErrorList(actionResult._identityResult));
+                }
+                if (actionResult._signInResult != null)
+                {
+                    return BadRequest(actionResult.GetErrorList(actionResult._signInResult));
+                }
+                return BadRequest();
+            }
+        }
     }
 }

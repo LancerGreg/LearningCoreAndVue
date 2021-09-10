@@ -70,7 +70,7 @@ export default {
         passwordConfirm: this.SignUpUser.PasswordConfirm
       })
       .then((response) => {
-          alert("User alredy exist")
+        console.log(response)
         if(response == 409) {
           alert("User alredy exist")
         }

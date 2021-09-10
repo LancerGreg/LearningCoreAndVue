@@ -1,10 +1,13 @@
-﻿using backend.Models;
-using backend.Models.ResultStatus;
+﻿using backend.Managers;
+using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace backend.Services
 {
@@ -18,7 +21,8 @@ namespace backend.Services
             _userManager = userManager;
             _signInManager = signInManager;
         }
-        public async Task<SignUpStatus> SignUp (bool isValid, SignUpUser modelUser)
+
+        public async Task<ActionResult> SignUp(bool isValid, SignUpUser modelUser)
         {
             if (isValid)
             {
@@ -27,37 +31,52 @@ namespace backend.Services
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, false);
-                    return SignUpStatus.Success;
+                    return new ActionResult(ActionStatus.Success, result);
                 }
                 else
                 {
-                    return SignUpStatus.Error;
+                    return new ActionResult(ActionStatus.Error, result);
                 }
             }
-            return SignUpStatus.Success;
+            return new ActionResult(ActionStatus.Error);
         }
 
-        public async Task<SignInStatus> SignIn(bool isValid, SignInUser modelUser, bool returnUrl)
+        public async Task<ActionResult> SignIn(bool isValid, SignInUser modelUser)
         {
             if (isValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(modelUser.Email, modelUser.Password, modelUser.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(modelUser.Email, modelUser.Password, modelUser.RememberMe, true);
                 if (result.Succeeded)
                 {
-                    return returnUrl ? SignInStatus.Redirect : SignInStatus.Success;
+                    return new ActionResult(ActionStatus.Success, result);
                 }
                 else
                 {
-                    return SignInStatus.InvalidLogin;
+                    return new ActionResult(ActionStatus.Error, result);
                 }
             }
-            return SignInStatus.Success;
+            return new ActionResult(ActionStatus.Error);
         }
 
-        public async Task<LogoutStatus> Logout()
+        private async Task Authenticate(string userName)
+        {
+            // создаем один claim
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
+            };
+            // создаем объект ClaimsIdentity
+            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            // установка аутентификационных куки
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+        }
+
+        public async Task<ActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return LogoutStatus.Success;
+            return new ActionResult(ActionStatus.Success);
         }
+
+        public async Task<object> GetUserCredentilas(ClaimsPrincipal user) => await _userManager.GetUserAsync(user);
     }
 }

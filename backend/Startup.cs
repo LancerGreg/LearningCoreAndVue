@@ -80,6 +80,8 @@ namespace backend
 
             app.UseMvc();
 
+            app.UseHttpsRedirection();
+
             app.UseRouting();
 
             app.UseAuthentication();

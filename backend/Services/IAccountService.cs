@@ -1,17 +1,19 @@
-﻿using backend.Models;
-using backend.Models.ResultStatus;
+﻿using backend.Managers;
+using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace backend.Services
 {
     public interface IAccountService
     {
-        Task<SignUpStatus> SignUp(bool isValid, SignUpUser modelUser);
-        Task<SignInStatus> SignIn(bool isValid, SignInUser modelUser, bool returnUrl);
-        Task<LogoutStatus> Logout();
+        Task<ActionResult> SignUp(bool isValid, SignUpUser modelUser);
+        Task<ActionResult> SignIn(bool isValid, SignInUser modelUser);
+        Task<ActionResult> Logout();
+        Task<object> GetUserCredentilas(ClaimsPrincipal user);
     }
 }

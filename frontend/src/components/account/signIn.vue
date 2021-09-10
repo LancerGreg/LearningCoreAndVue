@@ -9,6 +9,7 @@
         <v-layout column>
           <v-flex>
             <v-text-field
+              v-model="SignInUser.Email"
               name="email"
               label="Email"
               id="email"
@@ -17,6 +18,7 @@
           </v-flex>
           <v-flex>
             <v-text-field
+              v-model="SignInUser.Password"
               name="password"
               label="Password"
               id="password"
@@ -24,7 +26,7 @@
               required></v-text-field>
           </v-flex>
           <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
-            <v-btn color="primary" type="submit" @click="toSignIn">Sign In</v-btn>
+            <v-btn color="primary" @click="toSignIn">Sign In</v-btn>
             <OnForggotPassword />
             <OnSignUp />
           </v-flex>
@@ -36,17 +38,39 @@
 </template>
 
 <script>
+import store from '../../store'
+import axios from 'axios'
 import OnForggotPassword from '../account/buttons/onForggotPassword.vue'
 import OnSignUp from '../account/buttons/onSignUp.vue'
 
 export default {
   data: () => {
       return {
+        SignInUser: {
+          Email: "",
+          Password: ""
+        }
       }
   },
   methods: {
-    toSignIn () {
-
+    toSignIn () {      
+      alert(store.getters.URLS.API_URL + "account/sign_in")
+      axios.post(store.getters.URLS.API_URL + "account/sign_in", {
+        Email: this.SignInUser.Email,
+        Password: this.SignInUser.Password,
+        RememberMe: false,
+        ReturnUrl: ""
+      })
+      .then((response) => {
+        alert(response)
+        if(response == "Success") {
+          alert("Success")
+        } else {
+          console.forEach(element => {
+            alert(element.Code + "\n" + element.Description)
+          });
+        }
+      })
     }
   },
   components: {
