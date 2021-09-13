@@ -23,10 +23,7 @@ namespace backend.Controllers
 
         [HttpGet("user_is_authorized")]
         public JsonResult UserIsAuthorized() =>
-            new JsonResult(_accountService.UserIsAuthorized() ? "Success" : "User not authorized")
-            {
-                StatusCode = _accountService.UserIsAuthorized() ? StatusCodes.Status200OK : StatusCodes.Status401Unauthorized
-            };
+            new JsonResult(_accountService.UserIsAuthorized());
 
         [HttpGet("user_credentiails")]
         public async Task<IActionResult> UserCredentilas() =>

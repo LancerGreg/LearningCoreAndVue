@@ -6,21 +6,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.Helpers;
+using Microsoft.Extensions.Configuration;
+using backend.Repositories;
 
 namespace backend.Helpers
 {
-    public class AuthorizeAttribute : IAuthorizeAttribute
+    public class AuthorizeAttribute : AppDbRepository, IAuthorizeAttribute
     {
+
+        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor context;
 
-        public AuthorizeAttribute(IHttpContextAccessor context)
+        public AuthorizeAttribute(AppDbContext dbContext, IConfiguration configuration, IHttpContextAccessor context) : base(dbContext)
         {
+            _configuration = configuration;
             this.context = context;
         }
 
-        public bool OnAuthorization() =>
-            context.HttpContext.Session.Keys.Contains("AppUser");
+        public bool OnAuthorization()
+        {
+            var contain = context.HttpContext.Session.Keys.Contains("AppUser");
+            if (contain)
+            {
+                var userContext = context.HttpContext.Session.Get<AuthorizationUser>("AppUser");
+                if (userContext.Email == null || userContext.Email == "" || userContext.Token == null || userContext.Token == "")
+                    return false;
+                return _configuration.GenerateJwtToken(dbContext.Users.FirstOrDefault(_ => _.Email == userContext.Email)) == userContext.Token;
+            }
+            else
+            return contain;
+        }
 
         public void Authorization(string email, string token) =>
             context.HttpContext.Session.Set("AppUser", new AuthorizationUser(email, token));

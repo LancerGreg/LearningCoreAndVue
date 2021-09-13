@@ -27,9 +27,13 @@ export default {
   },
   data: () => {
       return {
+
       }
   },
   methods: {
+  },
+  mounted() {
+    store.dispatch('SET_USERISAUTHORITED');
   },
   components: {
     SignIn,

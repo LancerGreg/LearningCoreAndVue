@@ -62,15 +62,12 @@ export default {
         ReturnUrl: ""
       })
       .then((response) => {
-        alert(response)
-        if(response == "Success") {
-          alert("Success")
-        } else {
-          console.forEach(element => {
-            alert(element.Code + "\n" + element.Description)
-          });
-        }
-      })
+        console.log(response);
+      }).catch(error => {
+        error.response.data.forEach(element => {
+          alert(element.Code + "\n" + element.Description)
+        });
+      });
     }
   },
   components: {
