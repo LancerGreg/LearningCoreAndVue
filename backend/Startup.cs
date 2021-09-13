@@ -17,6 +17,7 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using backend.Services;
 using Microsoft.OpenApi.Models;
+using backend.Helpers;
 
 namespace backend
 {
@@ -32,6 +33,7 @@ namespace backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IAuthorizeAttribute, AuthorizeAttribute>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -62,6 +64,14 @@ namespace backend
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".MyApp.Session";
+                options.IdleTimeout = TimeSpan.FromSeconds(3600);
+                options.Cookie.IsEssential = true;
+            });
+
             services.AddSpaStaticFiles(configuration: options => { options.RootPath = "wwwroot"; });
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
@@ -78,21 +88,25 @@ namespace backend
 
             dbContext.Database.EnsureCreated();
 
-            app.UseMvc();
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseCookiePolicy();
+            app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMvc();
+
+            app.UseMiddleware<JwtMiddleware>();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "api");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Friendes's Tree WEB API v1");
             });
 
             app.UseSpaStaticFiles();

@@ -15,5 +15,7 @@ namespace backend.Services
         Task<ActionResult> SignIn(bool isValid, SignInUser modelUser);
         Task<ActionResult> Logout();
         Task<object> GetUserCredentilas(ClaimsPrincipal user);
+        AppUser GetUser(string id);
+        bool UserIsAuthorized();
     }
 }
