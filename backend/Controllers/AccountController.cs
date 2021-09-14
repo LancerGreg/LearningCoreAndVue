@@ -29,6 +29,10 @@ namespace backend.Controllers
         public async Task<IActionResult> UserCredentilas() =>
             User.Identity.IsAuthenticated ? new JsonResult(await _accountService.GetUserCredentilas(User)) : BadRequest(new Error() { Code = "NotAuthenticated", Description = "User is not authenticated" });
 
+        [HttpPut("confirm_email")]
+        public JsonResult ConfirmEmail(string email, string token) =>
+            new JsonResult(_accountService.ConfirmEmail(email, token));
+
         [HttpPost("sign_up")]
         public async Task<IActionResult> SignUp([FromBody] SignUpUser modelUser) =>
             GetActionResult(await _accountService.SignUp(ModelState.IsValid, modelUser));

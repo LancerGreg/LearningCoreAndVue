@@ -63,21 +63,23 @@ export default {
   },
   methods: {
     toSignUn() {
-      alert(store.getters.URLS.API_URL + "account/sign_up")
-      axios.post(store.getters.URLS.API_URL + "account/sign_up", {
-        email: this.SignUpUser.Email,
-        password: this.SignUpUser.Password,
-        passwordConfirm: this.SignUpUser.PasswordConfirm
-      })
-      .then((response) => {
-        console.log(response)
-        if(response == 409) {
-          alert("User alredy exist")
-        }
-        if(response == 200) {
-          alert("Success")
-        }
-      })
+      if (this.SignUpUser.Password == this.SignUpUser.PasswordConfirm) {
+        alert(store.getters.URLS.API_URL + "account/sign_up")
+        axios.post(store.getters.URLS.API_URL + "account/sign_up", {
+          email: this.SignUpUser.Email,
+          password: this.SignUpUser.Password,
+          passwordConfirm: this.SignUpUser.PasswordConfirm
+        })
+        .then((response) => {
+          console.log(response);
+        }).catch(error => {
+          error.response.data.forEach(element => {
+            alert(element.Code + "\n" + element.Description)
+          });
+        });
+      } else {
+        alert("Not correct passwrod" + "\n" + "Your password and confirmation password do not match.")
+      }
     }
   },
   components: {

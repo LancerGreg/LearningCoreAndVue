@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using backend.Repositories;
 using backend.Helpers;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace backend.Services
 {
@@ -20,13 +21,15 @@ namespace backend.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IAuthorizeAttribute _authorize;
+        private readonly ISMTP smtp;
 
-        public AccountService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize) : base(dbContext)
+        public AccountService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _authorize = authorize;
+            this.smtp = smtp;
         }
 
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
@@ -49,11 +52,11 @@ namespace backend.Services
             if (isValid)
             {
                 AppUser user = new AppUser { Email = modelUser.Email, UserName = modelUser.Email };
-                var result = await _userManager.CreateAsync(user, modelUser.Password);                
+                var result = await _userManager.CreateAsync(user, modelUser.Password);
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, false);
-                    _authorize.Authorization(user.Email, Authenticate(new AuthenticateRequest() { Email = user.Email, Password = user.PasswordHash }).Token);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    smtp.SendSignUpRequest(user.Email, token);
                     return new ActionResult(ActionStatus.Success, result);
                 }
                 else
@@ -64,14 +67,32 @@ namespace backend.Services
             return new ActionResult(ActionStatus.Error);
         }
 
+        public async Task<ActionResult> ConfirmEmail(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+                return new ActionResult(ActionStatus.Error);
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return new ActionResult(ActionStatus.Success, result);
+            }
+            else
+            {
+                return new ActionResult(ActionStatus.Error, result);
+            }
+        }
+
         public async Task<ActionResult> SignIn(bool isValid, SignInUser modelUser)
         {
             if (isValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(modelUser.Email, modelUser.Password, modelUser.RememberMe, true);
-                _authorize.Authorization(modelUser.Email, Authenticate(new AuthenticateRequest() { Email = modelUser.Email, Password = modelUser.Password }).Token);
+                var result = await _signInManager.PasswordSignInAsync(modelUser.Email, modelUser.Password, true, true);
                 if (result.Succeeded)
                 {
+                    _authorize.Authorization(modelUser.Email);
                     return new ActionResult(ActionStatus.Success, result);
                 }
                 else

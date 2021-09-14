@@ -32,14 +32,21 @@ namespace backend
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ISMTP, SMTP>();
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IAuthorizeAttribute, AuthorizeAttribute>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<AppUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
+            services.AddIdentity<AppUser, IdentityRole>(opt =>
+            {
+                opt.Password.RequiredLength = 8;
+                opt.User.RequireUniqueEmail = true;
+                opt.SignIn.RequireConfirmedEmail = true;
+            })
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddSwaggerGen(c =>
             {
@@ -68,7 +75,7 @@ namespace backend
             services.AddSession(options =>
             {
                 options.Cookie.Name = ".MyApp.Session";
-                options.IdleTimeout = TimeSpan.FromSeconds(3600);
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.IsEssential = true;
             });
 

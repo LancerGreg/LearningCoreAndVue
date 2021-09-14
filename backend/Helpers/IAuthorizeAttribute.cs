@@ -9,7 +9,7 @@ namespace backend.Helpers
     public interface IAuthorizeAttribute
     {
         bool OnAuthorization();
-        void Authorization(string email, string token);
+        void Authorization(string email);
         void LogoutAuthorization();
     }
 }

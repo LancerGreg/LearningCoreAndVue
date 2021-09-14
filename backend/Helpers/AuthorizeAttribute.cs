@@ -13,7 +13,6 @@ namespace backend.Helpers
 {
     public class AuthorizeAttribute : AppDbRepository, IAuthorizeAttribute
     {
-
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor context;
 
@@ -29,16 +28,14 @@ namespace backend.Helpers
             if (contain)
             {
                 var userContext = context.HttpContext.Session.Get<AuthorizationUser>("AppUser");
-                if (userContext.Email == null || userContext.Email == "" || userContext.Token == null || userContext.Token == "")
-                    return false;
-                return _configuration.GenerateJwtToken(dbContext.Users.FirstOrDefault(_ => _.Email == userContext.Email)) == userContext.Token;
+                return !(userContext.Email == null || userContext.Email == "");
             }
             else
-            return contain;
+                return contain;
         }
 
-        public void Authorization(string email, string token) =>
-            context.HttpContext.Session.Set("AppUser", new AuthorizationUser(email, token));
+        public void Authorization(string email) =>
+            context.HttpContext.Session.Set("AppUser", new AuthorizationUser(email));
 
         public void LogoutAuthorization() =>
             context.HttpContext.Session.Remove("AppUser");
@@ -49,10 +46,9 @@ namespace backend.Helpers
         public string Email { get; set; }
         public string Token { get; set; }
 
-        public AuthorizationUser(string Email, string Token)
+        public AuthorizationUser(string Email)
         {
             this.Email = Email;
-            this.Token = Token;
         }
     }
 }

@@ -17,5 +17,6 @@ namespace backend.Services
         Task<object> GetUserCredentilas(ClaimsPrincipal user);
         AppUser GetUser(string id);
         bool UserIsAuthorized();
+        Task<ActionResult> ConfirmEmail(string token, string email);
     }
 }
