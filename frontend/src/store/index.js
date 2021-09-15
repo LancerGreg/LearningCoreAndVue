@@ -16,7 +16,14 @@ const store = new Vuex.Store({
       OnSignUp: 2, 
       OnForgotPassword: 3
     },
-    userIsAuthorized: false
+    userIsAuthorized: false,
+    userProfile: {
+      FirstName: "",
+      LastName: "",
+      Phone: "",
+      Email: "",
+      Password: ""
+    }
   }),
   getters: {
     ACCOUNTSTATE: (state) => {
@@ -30,6 +37,9 @@ const store = new Vuex.Store({
     },
     USERISAUTHORITED: (state) => {
       return state.userIsAuthorized;
+    },
+    USERPROFILE: (state) => {
+      return state.userProfile;
     }
   },
   mutations: {
@@ -39,12 +49,19 @@ const store = new Vuex.Store({
     SET_USERISAUTHORITED: (state, payload) => {
       state.userIsAuthorized = payload;
       if (payload) state.accountState = 0;      
+    },
+    SET_USERPROFILE: (state, payload) => {
+      state.userProfile = payload;
     }
   },
   actions: {
     SET_USERISAUTHORITED: async (context) => {
       let {data} = await Axios.get(context.getters.URLS.API_URL + "account/user_is_authorized");
       context.commit('SET_USERISAUTHORITED', data);
+    },
+    SET_USERPROFILE: async (context) => {
+      let {data} = await Axios.get(context.getters.URLS.API_URL + "account/user_credentiails");
+      context.commit('SET_USERPROFILE', data);
     },
   },
 })

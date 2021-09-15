@@ -64,7 +64,7 @@ export default {
       .then((response) => {
         console.log(response);
         store.dispatch('SET_USERISAUTHORITED');
-        console.getters(USERISAUTHORITED);
+        store.getters.USERISAUTHORITED;
       }).catch(error => {
         error.response.data.forEach(element => {
           alert(element.Code + "\n" + element.Description)

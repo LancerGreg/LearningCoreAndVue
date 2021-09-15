@@ -12,6 +12,8 @@ using backend.Repositories;
 using backend.Helpers;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using backend.Helpers.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace backend.Services
 {
@@ -22,29 +24,25 @@ namespace backend.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IAuthorizeAttribute _authorize;
         private readonly ISMTP smtp;
+        private readonly IHttpContextAccessor context;
 
-        public AccountService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp) : base(dbContext)
+        public AccountService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp, IHttpContextAccessor context) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _authorize = authorize;
             this.smtp = smtp;
+            this.context = context;
         }
 
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
         {
             var user = dbContext.Users.FirstOrDefault(_ => _.Email == model.Email);
 
-            if (user == null)
-            {
-                // todo: need to add logger
-                return null;
-            }
+            if (user == null) return null;
 
-            var token = _configuration.GenerateJwtToken(user);
-
-            return new AuthenticateResponse(user, token);
+            return new AuthenticateResponse(user, _configuration.GenerateJwtToken(user));
         }
 
         public async Task<ActionResult> SignUp(bool isValid, SignUpUser modelUser)
@@ -110,10 +108,41 @@ namespace backend.Services
             return new ActionResult(ActionStatus.Success);
         }
 
-        public async Task<object> GetUserCredentilas(ClaimsPrincipal user) => await _userManager.GetUserAsync(user);
+        public async Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user) => new UserProfile(await _userManager.GetUserAsync(user));
 
         public AppUser GetUser(string id) => dbContext.Users.FirstOrDefault(_ => _.Id == id);
 
         public bool UserIsAuthorized() => _authorize.OnAuthorization();
+
+        public async Task<ActionResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile)
+        {
+            var user = await _userManager.GetUserAsync(claimsPrincipal);
+
+            user.FirstName = userProfile.FirstName;
+            user.LastName = userProfile.LastName;
+            user.PhoneNumber = userProfile.Phone;
+
+            if (userProfile.Password != null && userProfile.Password != "")
+            {
+                var _passwordValidator = context.HttpContext.RequestServices.GetService(typeof(IPasswordValidator<AppUser>)) as IPasswordValidator<AppUser>;
+                var _passwordHasher = context.HttpContext.RequestServices.GetService(typeof(IPasswordHasher<AppUser>)) as IPasswordHasher<AppUser>;
+
+                IdentityResult result = await _passwordValidator.ValidateAsync(_userManager, user, userProfile.Password);
+
+                if (result.Succeeded)
+                {
+                    user.PasswordHash = _passwordHasher.HashPassword(user, userProfile.Password);
+                    await _userManager.UpdateAsync(user);
+                    return new ActionResult(ActionStatus.Success, result);
+                }
+                else
+                {
+                    return new ActionResult(ActionStatus.Error, result);
+                }
+            }
+
+            await _userManager.UpdateAsync(user);
+            return new ActionResult(ActionStatus.Success);
+        }
     }
 }

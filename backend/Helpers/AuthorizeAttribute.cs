@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using backend.Repositories;
+using backend.Helpers.Interfaces;
 
 namespace backend.Helpers
 {

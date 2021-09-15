@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using backend.Services;
 using Microsoft.OpenApi.Models;
 using backend.Helpers;
+using backend.Helpers.Interfaces;
 
 namespace backend
 {

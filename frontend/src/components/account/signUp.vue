@@ -49,6 +49,7 @@
 <script>
 import store from '../../store'
 import axios from 'axios'
+import router from '../../router'
 import OnSignIn from '../account/buttons/onSignIn.vue'
 
 export default {
@@ -70,8 +71,9 @@ export default {
           password: this.SignUpUser.Password,
           passwordConfirm: this.SignUpUser.PasswordConfirm
         })
-        .then((response) => {
-          console.log(response);
+        .then(() => {
+          alert("Thank you for sign in\n\nCheck your email and confirm registration");
+          router.go(store.getters.URLS.API_URL + "account")
         }).catch(error => {
           error.response.data.forEach(element => {
             alert(element.Code + "\n" + element.Description)

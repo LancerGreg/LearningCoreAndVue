@@ -14,9 +14,10 @@ namespace backend.Services
         Task<ActionResult> SignUp(bool isValid, SignUpUser modelUser);
         Task<ActionResult> SignIn(bool isValid, SignInUser modelUser);
         Task<ActionResult> Logout();
-        Task<object> GetUserCredentilas(ClaimsPrincipal user);
+        Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user);
         AppUser GetUser(string id);
         bool UserIsAuthorized();
         Task<ActionResult> ConfirmEmail(string token, string email);
+        Task<ActionResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile);
     }
 }

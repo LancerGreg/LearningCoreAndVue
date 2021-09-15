@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace backend.Helpers
+namespace backend.Helpers.Interfaces
 {
     public interface ISMTP
     {
