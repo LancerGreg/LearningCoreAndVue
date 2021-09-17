@@ -9,6 +9,7 @@
         <v-layout column>
           <v-flex>
             <v-text-field
+              v-model="ReserPasswordRequest.Email"
               name="email"
               label="Email"
               id="email"
@@ -16,7 +17,7 @@
               required></v-text-field>
           </v-flex>
           <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
-            <v-btn color="primary" type="submit" @click="reserPassword">Send request ot reset password</v-btn>
+            <v-btn color="primary" @click="reserPassword">Send request ot reset password</v-btn>
             <OnSignIn />
           </v-flex>
         </v-layout>
@@ -27,16 +28,30 @@
 </template>
 
 <script>
+import router from '../../router'
+import store from '../../store'
+import axios from 'axios'
+
 import OnSignIn from '../account/buttons/onSignIn.vue'
 
 export default {
   data: () => {
-      return {
+    return {
+      ReserPasswordRequest: {
+        Email: ""
       }
+    }
   },
   methods: {
     reserPassword() {
-      
+      axios.post(store.getters.URLS.API_URL + "account/forgot_password_request?email=" + this.ReserPasswordRequest.Email)
+      .then(() => {
+        alert("Forgot password request send to your email");
+        router.push({ name: "Home"})
+      }).catch(error => {
+        console.log(error);
+        alert("ERROR\nEmail not found or not confirmed")
+      });
     }
   },
   components: {

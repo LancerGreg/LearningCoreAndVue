@@ -9,7 +9,7 @@ const store = new Vuex.Store({
     urls: {
       API_URL: "https://localhost:44332/api/"
     },
-    accountState : 1,
+    accountState: 1,
     accountStates: {
       OnUserCredentials: 0, 
       OnSignIn: 1, 

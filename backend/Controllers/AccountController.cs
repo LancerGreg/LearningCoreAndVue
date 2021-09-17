@@ -29,9 +29,9 @@ namespace backend.Controllers
         public async Task<IActionResult> GetUserCredentilas() =>
             User.Identity.IsAuthenticated ? new JsonResult(await _accountService.GetUserCredentilas(User)) : BadRequest(new Error() { Code = "NotAuthenticated", Description = "User is not authenticated" });
 
-        [HttpPut("confirm_email")]
-        public JsonResult ConfirmEmail(string email, string token) =>
-            new JsonResult(_accountService.ConfirmEmail(email, token));
+        [HttpPost("confirm_email")]
+        public async Task<IActionResult> ConfirmEmail(string email, string token) =>
+            GetActionResult(await _accountService.ConfirmEmail(email, token));
 
         [HttpPost("update_user")]
         public async Task<IActionResult> UpdateUser([FromBody]UserProfile userProfile) =>
@@ -48,6 +48,14 @@ namespace backend.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout() =>
             GetActionResult(await _accountService.Logout());
+
+        [HttpPost("forgot_password_request")]
+        public async Task<IActionResult> ResetPasswordRequest(string email) =>
+            GetActionResult(await _accountService.ResetPasswordRequest(email));
+
+        [HttpPost("confirm_reset_password")]
+        public async Task<IActionResult> ConfirmResetPassword(string email, string passwrod, string token) =>
+            GetActionResult(await _accountService.ResetPassword(email, passwrod, token));
 
         private IActionResult GetActionResult(backend.Managers.ActionResult actionResult)
         {

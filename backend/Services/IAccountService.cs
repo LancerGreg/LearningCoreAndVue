@@ -14,10 +14,12 @@ namespace backend.Services
         Task<ActionResult> SignUp(bool isValid, SignUpUser modelUser);
         Task<ActionResult> SignIn(bool isValid, SignInUser modelUser);
         Task<ActionResult> Logout();
+        Task<ActionResult> ResetPasswordRequest(string email);
+        Task<ActionResult> ResetPassword(string email, string password, string token);
         Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user);
         AppUser GetUser(string id);
         bool UserIsAuthorized();
-        Task<ActionResult> ConfirmEmail(string token, string email);
+        Task<ActionResult> ConfirmEmail(string email, string token);
         Task<ActionResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile);
     }
 }

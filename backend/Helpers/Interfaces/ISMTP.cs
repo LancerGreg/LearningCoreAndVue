@@ -7,6 +7,7 @@ namespace backend.Helpers.Interfaces
 {
     public interface ISMTP
     {
-        void SendSignUpRequest(string toEmail, string TokenVerified);
+        void SendSignUpRequest(string toEmail, string tokenVerified);
+        void SendResetPasswordRequest(string toEmail, string tokenVerified);
     }
 }

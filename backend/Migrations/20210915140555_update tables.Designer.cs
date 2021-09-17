@@ -10,8 +10,8 @@ using backend.Repositories;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210915082949_Update AppUser")]
-    partial class UpdateAppUser
+    [Migration("20210915140555_update tables")]
+    partial class updatetables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -14,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using System.Net;
 using backend.Helpers.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Web;
 
 namespace backend.Services
 {
@@ -54,7 +57,8 @@ namespace backend.Services
                 if (result.Succeeded)
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    smtp.SendSignUpRequest(user.Email, token);
+                    var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
+                    smtp.SendSignUpRequest(user.Email, decodToken);
                     return new ActionResult(ActionStatus.Success, result);
                 }
                 else
@@ -72,7 +76,8 @@ namespace backend.Services
             if (user == null)
                 return new ActionResult(ActionStatus.Error);
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_','/').Replace('-','+') + "==";
+            var result = await _userManager.ConfirmEmailAsync(user, encodeToken);
             if (result.Succeeded)
             {
                 return new ActionResult(ActionStatus.Success, result);
@@ -106,6 +111,40 @@ namespace backend.Services
             await _signInManager.SignOutAsync();
             _authorize.LogoutAuthorization();
             return new ActionResult(ActionStatus.Success);
+        }
+
+        public async Task<ActionResult> ResetPasswordRequest(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                return new ActionResult(ActionStatus.Error);
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
+            smtp.SendResetPasswordRequest(email, decodToken);
+            return new ActionResult(ActionStatus.Success);
+        }
+
+        public async Task<ActionResult> ResetPassword(string email, string password, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ActionResult(ActionStatus.Error);
+            }
+
+            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_', '/').Replace('-', '+');
+            var result = await _userManager.ResetPasswordAsync(user, encodeToken, password);
+            if (result.Succeeded)
+            {
+                return new ActionResult(ActionStatus.Success, result);
+            }
+            else
+            {
+                return new ActionResult(ActionStatus.Error, result);
+            }
         }
 
         public async Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user) => new UserProfile(await _userManager.GetUserAsync(user));

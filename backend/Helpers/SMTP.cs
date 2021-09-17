@@ -1,9 +1,12 @@
 ﻿using backend.Helpers.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace backend.Helpers
@@ -17,11 +20,13 @@ namespace backend.Helpers
         private readonly string pass = "";
 
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor context;
         private readonly SmtpClient client;
 
-        public SMTP(IConfiguration configuration)
+        public SMTP(IConfiguration configuration, IHttpContextAccessor context)
         {
             _configuration = configuration;
+            this.context = context;
             appName = _configuration["AppSettings:AppName"];
             appLocalURL = _configuration["AppSettings:AppLocalURL"];
             smtpServer = _configuration["CredentialsSMTP:Server"];
@@ -41,8 +46,20 @@ namespace backend.Helpers
             var mail = new MailMessage();
             mail.From = new MailAddress(from, appName);
             mail.To.Add(toEmail);
-            mail.Subject = "Підтвердження реєстрації в " + appName;
+            mail.Subject = "Confirm email on " + appName;
             mail.Body = "<a href='" + appLocalURL + "account/confirm_email?email=" + toEmail + "&token=" + tokenVerified + "' class='myButton'>Confirm Email</a>";
+            mail.IsBodyHtml = true;
+
+            client.Send(mail);
+        }
+
+        public void SendResetPasswordRequest(string toEmail, string tokenVerified)
+        {
+            var mail = new MailMessage();
+            mail.From = new MailAddress(from, appName);
+            mail.To.Add(toEmail);
+            mail.Subject = "Reset passwrod on  " + appName;
+            mail.Body = "<a href='" + appLocalURL + "account/confirm_reset_password?email=" + toEmail + "&token=" + tokenVerified + "' class='myButton'>Confirm Reset Password</a>";
             mail.IsBodyHtml = true;
 
             client.Send(mail);
