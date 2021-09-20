@@ -59,10 +59,10 @@ export default {
         let email = params.get("email");
         let token = params.get("token");
 
-        axios.post(store.getters.URLS.API_URL + "account/confirm_reset_password?email=" + email + "&passwrod=" + this.ReserPassword.NewPassword + "&token=" + token)
+        axios.post(store.getters.URLS.API_URL + "auth/confirm_reset_password?email=" + email + "&passwrod=" + this.ReserPassword.NewPassword + "&token=" + token)
         .then(() => {
           alert("Password change");
-          axios.post(store.getters.URLS.API_URL + "account/sign_in", {
+          axios.post(store.getters.URLS.API_URL + "auth/sign_in", {
             Email: email,
             Password: this.ReserPassword.NewPassword,
             RememberMe: false,

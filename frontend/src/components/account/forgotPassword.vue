@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     reserPassword() {
-      axios.post(store.getters.URLS.API_URL + "account/forgot_password_request?email=" + this.ReserPasswordRequest.Email)
+      axios.post(store.getters.URLS.API_URL + "auth/forgot_password_request?email=" + this.ReserPasswordRequest.Email)
       .then(() => {
         alert("Forgot password request send to your email");
         router.push({ name: "Home"})

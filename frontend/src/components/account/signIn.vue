@@ -53,9 +53,8 @@ export default {
       }
   },
   methods: {
-    toSignIn () {      
-      alert(store.getters.URLS.API_URL + "account/sign_in")
-      axios.post(store.getters.URLS.API_URL + "account/sign_in", {
+    toSignIn () {
+      axios.post(store.getters.URLS.API_URL + "auth/sign_in", {
         Email: this.SignInUser.Email,
         Password: this.SignInUser.Password,
         RememberMe: false,

@@ -66,8 +66,7 @@ export default {
   methods: {
     toSignUn() {
       if (this.SignUpUser.Password == this.SignUpUser.PasswordConfirm) {
-        alert(store.getters.URLS.API_URL + "account/sign_up")
-        axios.post(store.getters.URLS.API_URL + "account/sign_up", {
+        axios.post(store.getters.URLS.API_URL + "auth/sign_up", {
           email: this.SignUpUser.Email,
           password: this.SignUpUser.Password,
           passwordConfirm: this.SignUpUser.PasswordConfirm

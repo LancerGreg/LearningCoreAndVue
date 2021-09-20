@@ -56,7 +56,7 @@ const store = new Vuex.Store({
   },
   actions: {
     SET_USERISAUTHORITED: async (context) => {
-      let {data} = await Axios.get(context.getters.URLS.API_URL + "account/user_is_authorized");
+      let {data} = await Axios.get(context.getters.URLS.API_URL + "auth/user_is_authorized");
       context.commit('SET_USERISAUTHORITED', data);
     },
     SET_USERPROFILE: async (context) => {

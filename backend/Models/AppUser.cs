@@ -10,6 +10,5 @@ namespace backend.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public virtual ICollection<AppUser> Friends { get; set; }
     }
 }

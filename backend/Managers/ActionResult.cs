@@ -6,24 +6,24 @@ using System.Threading.Tasks;
 
 namespace backend.Managers
 {
-    public class ActionResult
+    public class ActionAuthResult
     {
         public readonly ActionStatus _actionStatus;
         public readonly IdentityResult _identityResult = null;
         public readonly SignInResult _signInResult = null;
 
-        public ActionResult(ActionStatus actionStatus)
+        public ActionAuthResult(ActionStatus actionStatus)
         {
             _actionStatus = actionStatus;
         }
 
-        public ActionResult(ActionStatus actionStatus, IdentityResult identityResult)
+        public ActionAuthResult(ActionStatus actionStatus, IdentityResult identityResult)
         {
             _actionStatus = actionStatus;
             _identityResult = identityResult;
         }
 
-        public ActionResult(ActionStatus actionStatus, SignInResult signInResult)
+        public ActionAuthResult(ActionStatus actionStatus, SignInResult signInResult)
         {
             _actionStatus = actionStatus;
             _signInResult = signInResult;
@@ -47,6 +47,80 @@ namespace backend.Managers
 
         public List<Error> GetErrorList(IdentityResult identityResult) =>
             identityResult.Errors.Select(_ => new Error() { Code = _.Code, Description = _.Description }).ToList();
+    }
+
+    public class ActionAccountResult
+    {
+        public readonly ActionStatus _actionStatus;
+        public readonly IdentityResult _identityResult = null;
+
+        public ActionAccountResult(ActionStatus actionStatus)
+        {
+            _actionStatus = actionStatus;
+        }
+
+        public ActionAccountResult(ActionStatus actionStatus, IdentityResult identityResult)
+        {
+            _actionStatus = actionStatus;
+            _identityResult = identityResult;
+        }
+
+        public List<Error> GetErrorList(IdentityResult identityResult) =>
+            identityResult.Errors.Select(_ => new Error() { Code = _.Code, Description = _.Description }).ToList();
+    }
+
+    public class ActionInvitedResult
+    {
+        public readonly ActionStatus _actionStatus;
+
+        public readonly string actionMessage;
+
+        public ActionInvitedResult(ActionStatus actionStatus)
+        {
+            _actionStatus = actionStatus;
+        }
+
+        public ActionInvitedResult(ActionStatus actionStatus, string actionMessage)
+        {
+            _actionStatus = actionStatus;
+            this.actionMessage = actionMessage;
+        }
+    }
+
+    public class ActionFriendResult
+    {
+        public readonly ActionStatus _actionStatus;
+
+        public readonly string actionMessage;
+
+        public ActionFriendResult(ActionStatus actionStatus)
+        {
+            _actionStatus = actionStatus;
+        }
+
+        public ActionFriendResult(ActionStatus actionStatus, string actionMessage)
+        {
+            _actionStatus = actionStatus;
+            this.actionMessage = actionMessage;
+        }
+    }
+
+    public class ActionInviteResult
+    {
+        public readonly ActionStatus _actionStatus;
+
+        public readonly string actionMessage;
+
+        public ActionInviteResult(ActionStatus actionStatus)
+        {
+            _actionStatus = actionStatus;
+        }
+
+        public ActionInviteResult(ActionStatus actionStatus, string actionMessage)
+        {
+            _actionStatus = actionStatus;
+            this.actionMessage = actionMessage;
+        }
     }
 
     public enum ActionStatus

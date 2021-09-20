@@ -23,7 +23,7 @@ export default {
         alert("ERROR\nBad request")
         router.push({ name: "Account"})
       } else {
-        axios.post(store.getters.URLS.API_URL + "account/confirm_email?email=" + email + "&token=" + token).then(() => {
+        axios.post(store.getters.URLS.API_URL + "auth/confirm_email?email=" + email + "&token=" + token).then(() => {
         router.push({ name: "Account"})
         }).catch(error => {
           try {

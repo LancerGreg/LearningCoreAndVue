@@ -62,7 +62,6 @@ export default {
   },
   methods: {
     save () {
-      console.log(this.userProfile.FirstName)
       axios.post(store.getters.URLS.API_URL + "account/update_user", {
         FirstName: this.userProfile.FirstName,
         LastName: this.userProfile.LastName,

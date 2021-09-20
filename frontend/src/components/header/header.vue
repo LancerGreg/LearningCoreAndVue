@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     exit () {
-      axios.post(store.getters.URLS.API_URL + "account/logout")
+      axios.post(store.getters.URLS.API_URL + "auth/logout")
         .then(() => {
           router.go(store.getters.URLS.API_URL + "account")
         })

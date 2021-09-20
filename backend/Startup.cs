@@ -19,6 +19,7 @@ using backend.Services;
 using Microsoft.OpenApi.Models;
 using backend.Helpers;
 using backend.Helpers.Interfaces;
+using backend.Services.Interfaces;
 
 namespace backend
 {
@@ -34,8 +35,11 @@ namespace backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<ISMTP, SMTP>();
+            services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IAuthorizeAttribute, AuthorizeAttribute>();
+            services.AddTransient<IFriendService, FriendService>();
+            services.AddTransient<IInviteService, InviteService>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

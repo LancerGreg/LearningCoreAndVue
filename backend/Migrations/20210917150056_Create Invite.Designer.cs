@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Repositories;
 
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210917150056_Create Invite")]
+    partial class CreateInvite
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,27 +228,6 @@ namespace backend.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("backend.Models.Friendship", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FriendId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("FriendId");
-
-                    b.ToTable("Friendships");
-                });
-
             modelBuilder.Entity("backend.Models.Invite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -257,10 +238,10 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("RecipientId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SenderId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("WhenDecide")
                         .HasColumnType("datetime2");
@@ -269,6 +250,10 @@ namespace backend.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Invites");
                 });
@@ -331,19 +316,19 @@ namespace backend.Migrations
                         .HasForeignKey("AppUserId");
                 });
 
-            modelBuilder.Entity("backend.Models.Friendship", b =>
+            modelBuilder.Entity("backend.Models.Invite", b =>
                 {
-                    b.HasOne("backend.Models.AppUser", "AppUser")
+                    b.HasOne("backend.Models.AppUser", "Recipient")
                         .WithMany()
-                        .HasForeignKey("AppUserId");
+                        .HasForeignKey("RecipientId");
 
-                    b.HasOne("backend.Models.AppUser", "Friend")
+                    b.HasOne("backend.Models.AppUser", "Sender")
                         .WithMany()
-                        .HasForeignKey("FriendId");
+                        .HasForeignKey("SenderId");
 
-                    b.Navigation("AppUser");
+                    b.Navigation("Recipient");
 
-                    b.Navigation("Friend");
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("backend.Models.AppUser", b =>
