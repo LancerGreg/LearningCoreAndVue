@@ -23,7 +23,8 @@ const store = new Vuex.Store({
       Phone: "",
       Email: "",
       Password: ""
-    }
+    },
+    newInvite: false,
   }),
   getters: {
     ACCOUNTSTATE: (state) => {
@@ -40,6 +41,9 @@ const store = new Vuex.Store({
     },
     USERPROFILE: (state) => {
       return state.userProfile;
+    },
+    NEWINVITE: (state) => {
+      return state.newInvite;
     }
   },
   mutations: {
@@ -52,7 +56,10 @@ const store = new Vuex.Store({
     },
     SET_USERPROFILE: (state, payload) => {
       state.userProfile = payload;
-    }
+    },
+    SET_NEWINVITE: (state, payload) => {
+      state.newInvite = payload;
+    },
   },
   actions: {
     SET_USERISAUTHORITED: async (context) => {
@@ -62,6 +69,10 @@ const store = new Vuex.Store({
     SET_USERPROFILE: async (context) => {
       let {data} = await Axios.get(context.getters.URLS.API_URL + "account/user_credentiails");
       context.commit('SET_USERPROFILE', data);
+    },
+    SET_NEWINVITE: async (context) => {
+      let {data} = await Axios.get(context.getters.URLS.API_URL + "invite/not_decide_invites");
+      context.commit('SET_NEWINVITE', data);
     },
   },
 })

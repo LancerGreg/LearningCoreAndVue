@@ -11,6 +11,7 @@ namespace backend.Services.Interfaces
     public interface IInviteService
     {
         Task<IEnumerable<Invite>> GetAllInvites(ClaimsPrincipal curentUser);
+        Task<IEnumerable<Invite>> GetNotDecideInvites(ClaimsPrincipal curentUser);
         Task<ActionInviteResult> InviteRequest(ClaimsPrincipal curentUser, string friendId);
         Task<ActionInviteResult> ConfirmInvite(ClaimsPrincipal curentUser, Guid inviteId, Decide decide);
     }

@@ -27,8 +27,11 @@ namespace backend.Services
             return dbContext.Invites.Where(_ => _.RecipientId == user.Id);
         }
 
-        public async Task<IEnumerable<Invite>> GetNotDecideInvites(ClaimsPrincipal curentUser) => 
-            (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide);
+        public async Task<IEnumerable<Invite>> GetNotDecideInvites(ClaimsPrincipal curentUser)
+        {
+            var invites = (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).ToList();
+            return (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide);
+        }
 
         public async Task<ActionInviteResult> InviteRequest(ClaimsPrincipal curentUser, string friendId)
         {

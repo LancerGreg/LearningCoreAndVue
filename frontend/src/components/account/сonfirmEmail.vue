@@ -38,8 +38,8 @@ export default {
       }
     }
   },
- beforeMount(){
-    this.confirmEmail()
- },
+  beforeMount(){
+     this.confirmEmail()
+  },
 }
 </script>

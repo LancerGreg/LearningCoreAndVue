@@ -2,9 +2,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Account from '../views/Account.vue'
-import Friends from '../views/Friends.vue'
 import ConfirmEmail from '../components/account/сonfirmEmail.vue'
 import ConfirmResetPassword from '../components/account/confirmResetPassword.vue'
+import AddNewFriend from '../components/friendship/add_new_friend.vue'
+import FriendessTree from '../components/friendship/friendess_tree.vue'
 
 Vue.use(VueRouter)
 
@@ -30,9 +31,14 @@ const routes = [
     component: ConfirmResetPassword,
   },
   {
-    path: '/friends',
-    name: 'Friends',
-    component: Friends
+    path: "/friendship/friendess_tree",
+    name: "Friendess_Tree",
+    component: FriendessTree
+  },
+  {
+    path: '/friends/add_new_friend',
+    name: 'Add_new_friend',
+    component: AddNewFriend
   },
 ]
 

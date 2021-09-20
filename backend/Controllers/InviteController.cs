@@ -21,6 +21,10 @@ namespace backend.Controllers
             _inviteService = inviteService;
         }
 
+        [HttpGet("not_decide_invites")]
+        public async Task<JsonResult> GetNotDecideInvites() =>
+            new JsonResult(await _inviteService.GetNotDecideInvites(User));
+
         [HttpPost("invite_request")]
         public async Task<IActionResult> InviteRequest(string friendId) =>
             GetActionResult(await _inviteService.InviteRequest(User, friendId));

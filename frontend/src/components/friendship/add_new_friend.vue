@@ -1,17 +1,17 @@
 <template>
-    <div>
-        
-    </div>
+<div>
+  
+</div>
 </template>
 
 <script>
 
 export default {
-  name: 'Friends',
+  name: 'Add_new_friend',
   data: () => {
-      return {
-          
-      }
+    return {
+      
+    }
   },
 }
 </script>
