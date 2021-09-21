@@ -61,7 +61,7 @@ export default {
         ReturnUrl: ""
       })
       .then((response) => {
-        console.log(response);
+        response;
         store.dispatch('SET_USERISAUTHORITED');
         store.getters.USERISAUTHORITED;
       }).catch(error => {

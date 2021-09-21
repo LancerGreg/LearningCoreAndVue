@@ -22,12 +22,20 @@ namespace backend.Controllers
             _friendService = friendService;
         }
 
-        [HttpGet("get_friends")]
-        public async Task<JsonResult> GetFriends() =>
+        [HttpGet("get_my_friends")]
+        public async Task<JsonResult> GetMyFriends() =>
             new JsonResult(await _friendService.GetFriends(User));
 
-        [HttpGet("get_friends_by_id")]
-        public JsonResult GetUserFriendsById(string friendId) =>
-            new JsonResult(_friendService.GetFriends(friendId));
+        [HttpGet("get_user_friends")]
+        public JsonResult GetUserFriendsById(string userId) =>
+            new JsonResult(_friendService.GetUserFriends(userId));
+
+        [HttpGet("get_user_by_id")]
+        public JsonResult GetUserById(string userId) =>
+            new JsonResult(_friendService.GetUserById(userId));
+
+        [HttpGet("get_user_by_name")]
+        public JsonResult GetUserById(string firstName = "", string lastName = "") =>
+            new JsonResult(_friendService.GetUsersByName(firstName.ToLower(), lastName.ToLower()));
     }
 }

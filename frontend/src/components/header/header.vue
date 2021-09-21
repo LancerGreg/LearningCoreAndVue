@@ -25,17 +25,23 @@
             </v-list-item>  
             <v-list-group v-show="accountState === 0" prepend-icon="people" value="true">
               <template v-slot:activator>
-                <v-list-item>
-                  <v-list-item-title>Friends</v-list-item-title>
-                </v-list-item>
+                <v-list-item-title>Friends</v-list-item-title>
               </template>
-              <v-list-item v-for="(item, i) in friendMenu" :key="i" :to="item.path" class="pl-16">
+              <v-list-item v-for="(item, i) in friendMenu" :key="i" :to="item.path" class="pl-16" style="ove">
                 <v-list-item-title v-text="item.title"></v-list-item-title>
                 <v-list-item-icon v-if="item.porpInvite === null">
                   <v-icon v-text="item.icon"></v-icon>
                 </v-list-item-icon>
+                <v-list-item-icon v-else-if="newInvitesCount > 0">
+                  <v-badge color="green">
+                    <template v-slot:badge>
+                      <span>{{newInvitesCount}}</span>
+                    </template>
+                    <v-icon color="green" v-text="item.icon"></v-icon>
+                  </v-badge>
+                </v-list-item-icon>
                 <v-list-item-icon v-else>
-                  <v-icon color="green" v-text="item.icon"></v-icon>
+                  <v-icon v-text="item.icon"></v-icon>
                 </v-list-item-icon>
               </v-list-item>
             </v-list-group>
@@ -49,22 +55,24 @@
 import store from "../../store/"
 import axios from 'axios'
 import router from '../../router'
-import func from 'vue-editor-bridge'
 
 export default {
-  data: () => ({
-    drawer: false,
-    group: null,
-    menuItems: [
-      { title: 'Home', path: '/', icon: 'home' },
-      { title: 'Account', path: '/account', icon: 'mdi-account' },
-    ],
-    friendMenu: [
-      { title: "Friendes's Tree", path: "/friendship/friendess_tree", icon: 'account_tree', porpInvite: null },
-      { title: "Add new friend", path: "/friendship/add_new_friend", icon: 'person_add', porpInvite: null },
-      { title: "Invite of freindship", path: "/friendship/invite_of_freindship", icon: 'group_add', porpInvite: function () { getNewInvites() } },
-    ],
-  }),
+  data: function ()  {
+    return {
+      newInvitesCount: 0,
+      drawer: false,
+      group: null,
+      menuItems: [
+        { title: 'Home', path: '/', icon: 'home' },
+        { title: 'Account', path: '/account', icon: 'mdi-account' },
+      ],
+      friendMenu: [
+        { title: "Friendes's Tree", path: "/friendship/friendess_tree", icon: 'account_tree', porpInvite: null },
+        { title: "Add new friend", path: "/friendship/add_new_friend", icon: 'person_add', porpInvite: null },
+        { title: "Invite of freindship", path: "/friendship/invite_of_freindship", icon: 'group_add', porpInvite: null },
+      ],
+    }
+  },
   computed: {
     accountState () {
       return store.getters.ACCOUNTSTATE;
@@ -77,11 +85,19 @@ export default {
           router.go(store.getters.URLS.API_URL + "account")
         })
     },
-    getNewInvites() {
-      store.dispatch('SET_NEWINVITE');
-      console.log(store.getters.NEWINVITE);
-      return store.getters.NEWINVITE;
+    async getNewInvites() {      
+      await axios.get(store.getters.URLS.API_URL + "invite/get_not_decide_invites_count")
+        .then(result => {
+          this.newInvitesCount = result.data;
+          this.friendMenu[2].porpInvite = result.data > 0 ? true : false
+        })
     },
+  },
+  mounted() {
+    this.getNewInvites();
+  },
+  updated() {
+    this.getNewInvites();
   },
 }
 </script>
@@ -105,5 +121,9 @@ export default {
 
     .d-flex-none {
       flex: none !important; 
+    }
+
+    .v-list-group__items .v-list-item, .v-list-group__items .v-list-group__items {
+      overflow: unset !important;
     }
 </style>

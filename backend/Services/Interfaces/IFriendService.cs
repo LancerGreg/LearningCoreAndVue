@@ -11,6 +11,8 @@ namespace backend.Services.Interfaces
     public interface IFriendService
     {
         Task<IEnumerable<AppUser>> GetFriends(ClaimsPrincipal curentUser);
-        IEnumerable<AppUser> GetFriends(string friendId);
+        IEnumerable<AppUser> GetUserFriends(string userId);
+        Task<AppUser> GetUserById(string userId);
+        (IEnumerable<AppUser> bestMatch, IEnumerable<AppUser> otherMatch) GetUsersByName(string firstName, string lastName);
     }
 }

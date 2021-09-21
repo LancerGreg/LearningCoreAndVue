@@ -109,7 +109,7 @@ namespace backend.Services
         {
             if (isValid)
             {
-                AppUser user = new AppUser { Email = modelUser.Email, UserName = modelUser.Email };
+                AppUser user = new AppUser { Email = modelUser.Email, UserName = modelUser.Email, FirstName = "", LastName = "", PhoneNumber = "" };
                 var result = await _userManager.CreateAsync(user, modelUser.Password);
                 if (result.Succeeded)
                 {

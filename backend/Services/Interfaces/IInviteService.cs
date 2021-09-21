@@ -11,8 +11,10 @@ namespace backend.Services.Interfaces
     public interface IInviteService
     {
         Task<IEnumerable<Invite>> GetAllInvites(ClaimsPrincipal curentUser);
-        Task<IEnumerable<Invite>> GetNotDecideInvites(ClaimsPrincipal curentUser);
-        Task<ActionInviteResult> InviteRequest(ClaimsPrincipal curentUser, string friendId);
-        Task<ActionInviteResult> ConfirmInvite(ClaimsPrincipal curentUser, Guid inviteId, Decide decide);
+        Task<IEnumerable<InviteTable>> GetNotDecideInvites(ClaimsPrincipal curentUser);
+        Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser);
+        Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string friendId);
+        Task<ActionInviteResult> InviteRequestByEmail(ClaimsPrincipal curentUser, string friendEmail);
+        Task<ActionInviteResult> ConfirmInvite(ClaimsPrincipal curentUser, string inviteId, Decide decide);
     }
 }

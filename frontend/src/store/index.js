@@ -71,7 +71,7 @@ const store = new Vuex.Store({
       context.commit('SET_USERPROFILE', data);
     },
     SET_NEWINVITE: async (context) => {
-      let {data} = await Axios.get(context.getters.URLS.API_URL + "invite/not_decide_invites");
+      let {data} = await Axios.get(context.getters.URLS.API_URL + "invite/get_not_decide_invites");
       context.commit('SET_NEWINVITE', data);
     },
   },

@@ -21,16 +21,24 @@ namespace backend.Controllers
             _inviteService = inviteService;
         }
 
-        [HttpGet("not_decide_invites")]
+        [HttpGet("get_not_decide_invites")]
         public async Task<JsonResult> GetNotDecideInvites() =>
             new JsonResult(await _inviteService.GetNotDecideInvites(User));
 
-        [HttpPost("invite_request")]
+        [HttpGet("get_not_decide_invites_count")]
+        public async Task<JsonResult> GetNotDecideInvitesCount() =>
+            new JsonResult(await _inviteService.GetNotDecideInvitesCount(User));
+
+        [HttpPost("invite_request_by_id")]
         public async Task<IActionResult> InviteRequest(string friendId) =>
-            GetActionResult(await _inviteService.InviteRequest(User, friendId));
+            GetActionResult(await _inviteService.InviteRequestById(User, friendId));
+
+        [HttpPost("invite_request_by_email")]
+        public async Task<IActionResult> InviteRequestByEmail(string friendEmail) =>
+            GetActionResult(await _inviteService.InviteRequestByEmail(User, friendEmail));
 
         [HttpPost("confirm_invite")]
-        public async Task<IActionResult> ConfirmInvite(Guid inviteId, Decide decide) =>
+        public async Task<IActionResult> ConfirmInvite(string inviteId, Decide decide) =>
             GetActionResult(await _inviteService.ConfirmInvite(User, inviteId, decide));
 
         private IActionResult GetActionResult(backend.Managers.ActionInviteResult actionResult)
