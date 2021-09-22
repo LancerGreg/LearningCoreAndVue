@@ -32,7 +32,7 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:item.actions="{ item }">
+    <template v-slot:[`item.actions`]="{ item }">
       <v-icon style="background:green;" class="v-icon-action" color="white" @click="acceptInvite(item)">
         check
       </v-icon>
@@ -70,12 +70,6 @@ import axios from 'axios'
       ],
       invites: [],
       editedIndex: -1,
-      defaultItem: {
-        FullName: '',
-        FirstName: 0,
-        WhenSend: 0,
-        WhenSend: 0,
-      },
     }),
 
     computed: {
@@ -120,7 +114,7 @@ import axios from 'axios'
       },
 
       denieInviteConfirm () {
-        axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=243F6C96-7255-4499-F92B-08D97C3E5A57&decide=0")
+        axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=" + this.invites[this.editedIndex].InviteId + "&decide=0")
         .then(() => {
           this.invites.splice(this.editedIndex, 1)
           this.closeDenie()

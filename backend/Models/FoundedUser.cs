@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    public class InviteTable
+    public class FoundedUser
     {
-        public Guid InviteId { get; set; }
-        public string WhenSend { get; set;}
-
-        public string SenderId { get; set; }
+        public string UserId { get; set; }
         public string FullName => FirstName == "" && LastName == "" ? "No Name" : FirstName + " " + LastName;
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public InviteTable() { }
+        public bool IsFriend { get; set; }
+        public bool HaveInvite { get; set; }
 
-        public InviteTable(AppUser user)
+        public FoundedUser() { }
+
+        public FoundedUser(AppUser user)
         {
-            SenderId = user.Id;
+            UserId = user.Id;
             FirstName = user.FirstName;
             LastName = user.LastName;
         }

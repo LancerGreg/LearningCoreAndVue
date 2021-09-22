@@ -13,7 +13,7 @@ namespace backend.Services.Interfaces
         Task<IEnumerable<Invite>> GetAllInvites(ClaimsPrincipal curentUser);
         Task<IEnumerable<InviteTable>> GetNotDecideInvites(ClaimsPrincipal curentUser);
         Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser);
-        Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string friendId);
+        Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string userId);
         Task<ActionInviteResult> InviteRequestByEmail(ClaimsPrincipal curentUser, string friendEmail);
         Task<ActionInviteResult> ConfirmInvite(ClaimsPrincipal curentUser, string inviteId, Decide decide);
     }

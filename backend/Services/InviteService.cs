@@ -31,17 +31,17 @@ namespace backend.Services
         {
             var invites = (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide);
             var senders = dbContext.Users.Where(_ => invites.Select(i => i.SenderId).Contains(_.Id));
-           return invites.Select(_ => new InviteTable() { InviteId = _.Id, WhenSend = _.WhenSend.Value.ToString("g"), SenderId = _.SenderId, FirstName = senders.FirstOrDefault(u => u.Id == _.SenderId).FirstName, LastName = senders.FirstOrDefault(u => u.Id == _.SenderId).LastName });
+            return invites.Select(_ => new InviteTable() { InviteId = _.Id, WhenSend = _.WhenSend.Value.ToString("g"), SenderId = _.SenderId, FirstName = senders.FirstOrDefault(u => u.Id == _.SenderId).FirstName, LastName = senders.FirstOrDefault(u => u.Id == _.SenderId).LastName });
         }
 
-        public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => (await GetNotDecideInvites(curentUser)).Count();
+        public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).Count();
 
-        public async Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string friendId)
+        public async Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string userId)
         {
             var newInvite = new Invite()
             {
                 SenderId = (await _userManager.GetUserAsync(curentUser)).Id,
-                RecipientId = (await dbContext.Users.FirstOrDefaultAsync(_ => _.Id == friendId)).Id,
+                RecipientId = (await dbContext.Users.FirstOrDefaultAsync(_ => _.Id == userId)).Id,
                 WhenSend = DateTime.Now,
                 WhenDecide = null,
                 Decide = Decide.NotDecide

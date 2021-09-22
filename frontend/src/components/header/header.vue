@@ -75,6 +75,7 @@ export default {
   },
   computed: {
     accountState () {
+      store.dispatch('SET_USERISAUTHORITED');
       return store.getters.ACCOUNTSTATE;
     },
   },
@@ -85,16 +86,15 @@ export default {
           router.go(store.getters.URLS.API_URL + "account")
         })
     },
-    async getNewInvites() {      
+    async getNewInvites() {
+      if (store.getters.ACCOUNTSTATE === 0) {
       await axios.get(store.getters.URLS.API_URL + "invite/get_not_decide_invites_count")
         .then(result => {
           this.newInvitesCount = result.data;
           this.friendMenu[2].porpInvite = result.data > 0 ? true : false
         })
+      }
     },
-  },
-  mounted() {
-    this.getNewInvites();
   },
   updated() {
     this.getNewInvites();

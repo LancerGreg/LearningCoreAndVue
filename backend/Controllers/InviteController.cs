@@ -30,8 +30,8 @@ namespace backend.Controllers
             new JsonResult(await _inviteService.GetNotDecideInvitesCount(User));
 
         [HttpPost("invite_request_by_id")]
-        public async Task<IActionResult> InviteRequest(string friendId) =>
-            GetActionResult(await _inviteService.InviteRequestById(User, friendId));
+        public async Task<IActionResult> InviteRequest(string userId) =>
+            GetActionResult(await _inviteService.InviteRequestById(User, userId));
 
         [HttpPost("invite_request_by_email")]
         public async Task<IActionResult> InviteRequestByEmail(string friendEmail) =>
