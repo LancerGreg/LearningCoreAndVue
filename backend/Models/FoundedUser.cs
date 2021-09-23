@@ -11,6 +11,8 @@ namespace backend.Models
         public string FullName => FirstName == "" && LastName == "" ? "No Name" : FirstName + " " + LastName;
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
         public bool IsFriend { get; set; }
         public bool HaveInvite { get; set; }
 
@@ -21,6 +23,8 @@ namespace backend.Models
             UserId = user.Id;
             FirstName = user.FirstName;
             LastName = user.LastName;
+            Phone = user.PhoneNumber;
+            Email = user.Email;
         }
     }
 }

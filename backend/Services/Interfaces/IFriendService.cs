@@ -13,6 +13,8 @@ namespace backend.Services.Interfaces
         Task<IEnumerable<AppUser>> GetFriends(ClaimsPrincipal curentUser);
         IEnumerable<AppUser> GetUserFriends(string userId);
         Task<AppUser> GetUserById(string userId);
+        IEnumerable<FoundedUser> GetUserByEmail(ClaimsPrincipal curentUser, string userEmail);
+        IEnumerable<FoundedUser> GetUserByPhone(ClaimsPrincipal curentUser, string userPhone);
         (IEnumerable<FoundedUser> bestMatch, IEnumerable<FoundedUser> otherMatch) GetUsersByName(ClaimsPrincipal curentUser, string firstName, string lastName);
     }
 }

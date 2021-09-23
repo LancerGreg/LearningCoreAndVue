@@ -34,6 +34,14 @@ namespace backend.Controllers
         public JsonResult GetUserById(string userId) =>
             new JsonResult(_friendService.GetUserById(userId));
 
+        [HttpGet("get_user_by_email")]
+        public JsonResult GetUserByEmail(string userEmail) =>
+            new JsonResult(_friendService.GetUserByEmail(User, userEmail.ToLower()));
+
+        [HttpGet("get_user_by_phone")]
+        public JsonResult GetUserByPhone(string userPhone) =>
+            new JsonResult(_friendService.GetUserByPhone(User, userPhone));
+
         [HttpGet("get_user_by_name")]
         public JsonResult GetUserByName(string firstName = "", string lastName = "") =>
             new JsonResult(_friendService.GetUsersByName(User, firstName.ToLower(), lastName == null ? "" : lastName.ToLower()));

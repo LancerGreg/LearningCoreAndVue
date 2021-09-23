@@ -1,74 +1,71 @@
 <template>
-    <v-card id="inspire">
-        <div class="px-2">
-            <h2>Paste friend phone to the <b>search</b></h2>
-            <v-text-field label="search" v-model.lazy.trim="search"></v-text-field>
-            <v-data-table :headers="headers" :items="users" :options.sync="options" :server-items-length="totalUsers" :loading="loading" class="elevation-4">
-              <template v-slot:top> 
-                <v-toolbar flat>
-                  <v-dialog v-model="dialogFriendship" max-width="600px">
-                    <v-card>
-                      <v-card-title>
-                        <span class="text-h5">{{ dialogFriendshipTitle }}</span>
-                      </v-card-title>  
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="closeDialogFriendship">
-                          OK
-                        </v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                  <v-dialog v-model="dialogWait" max-width="600px">
-                    <v-card>
-                      <v-card-title>
-                        <span class="text-h5">{{ dialogWaitTitle }}</span>
-                      </v-card-title>  
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="closeDialogWait">
-                          OK
-                        </v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                  <v-dialog v-model="dialogInvite" max-width="600px">
-                    <v-card>
-                      <v-card-title class="text-h5">Are you sure you want to send friendship invite?</v-card-title>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="closeDialogInvite">Cancel</v-btn>
-                        <v-btn color="blue darken-1" text @click="sendInvite">Yes</v-btn>
-                        <v-spacer></v-spacer>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-toolbar>
-              </template>
-              <template v-slot:[`item.actions`]="{ item }">
-                <v-icon v-if="!item.IsFriend && !item.HaveInvite" style="background:orange;" class="v-icon-action" color="white" large @click="showInvite(item)">
-                  send
-                </v-icon>
-                <v-icon v-if="!item.IsFriend && item.HaveInvite" title="the request is pending " style="background:blue;" class="v-icon-action" color="white" large @click="showDialogWait()">
-                  done
-                </v-icon>
-                <v-icon v-if="item.IsFriend" title="they are your friend" style="background:green;" class="v-icon-action" color="white" large @click="showDialogFriendship()">
-                  done_all
-                </v-icon>
-              </template>
-            </v-data-table>
-        </div>
-    </v-card>
+    <v-data-table :headers="headers" :items="users" :options.sync="options" :server-items-length="totalUsers" :loading="loading" class="elevation-4">
+      <template v-slot:top> 
+        <v-toolbar flat>
+          <v-toolbar-title>{{ match }}</v-toolbar-title>
+          <v-divider class="mx-4" inset vertical></v-divider>
+          <v-spacer></v-spacer>
+          <v-dialog v-model="dialogFriendship" max-width="600px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">{{ dialogFriendshipTitle }}</span>
+              </v-card-title>  
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDialogFriendship">
+                  OK
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogWait" max-width="600px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">{{ dialogWaitTitle }}</span>
+              </v-card-title>  
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDialogWait">
+                  OK
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogInvite" max-width="600px">
+            <v-card>
+              <v-card-title class="text-h5">Are you sure you want to send friendship invite?</v-card-title>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDialogInvite">Cancel</v-btn>
+                <v-btn color="blue darken-1" text @click="sendInvite">Yes</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon v-if="!item.IsFriend && !item.HaveInvite" style="background:orange;" class="v-icon-action" color="white" large @click="showInvite(item)">
+          send
+        </v-icon>
+        <v-icon v-if="!item.IsFriend && item.HaveInvite" title="the request is pending " style="background:blue;" class="v-icon-action" color="white" large @click="showDialogWait()">
+          done
+        </v-icon>
+        <v-icon v-if="item.IsFriend" title="they are your friend" style="background:green;" class="v-icon-action" color="white" large @click="showDialogFriendship()">
+          done_all
+        </v-icon>
+      </template>
+    </v-data-table>
 </template>
 
 <script>
-import store from '../../../store'
+import store from '../../../../store'
 import axios from 'axios'
 
 export default {
+  props: ['match', "search"],
   data() {
         return {
-            search: "",
             totalUsers: 0,
             users: [],
             editedIndex: -1,
@@ -76,11 +73,13 @@ export default {
             options: {},
             headers: [
                 {
-                    text: "Phone",
+                    text: "Full Name",
                     align: "left",
                     sortable: false,
-                    value: "Phone"
+                    value: "FullName"
                 },
+                { text: "First Name", value: "FirstName", sortable: false },
+                { text: "Last Name", value: "LastName", sortable: false },
                 { text: 'Send Invite', value: 'actions', sortable: false },
             ],
             dialogFriendship: false,
@@ -181,10 +180,17 @@ export default {
         },
         async getUsers(search) {
           if (search) {
+            let firstName = /\S/.test(search) ? search.split(" ")[0] : search
+            let lastName = /\S/.test(search) ? search.split(" ").slice(1).join(" ") : ""
             let users;
-            await axios.get(store.getters.URLS.API_URL + "friend/get_user_by_phone?userPhone=" + search)
+            await axios.get(store.getters.URLS.API_URL + "friend/get_user_by_name?firstName=" + firstName + "&lastName=" + lastName)
             .then((response) => {
-              users = response.data
+              if (this.$props.match == "Best Match") {
+                users = response.data.Item1
+              }
+              if (this.$props.match == "Other Match") {
+                users = response.data.Item2
+              }
             }).catch(() => {
               alert("Error 500\n Serve not working")
               return []
