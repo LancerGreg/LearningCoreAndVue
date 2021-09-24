@@ -5,7 +5,7 @@
 
       <v-toolbar-title>Friendes's Tree</v-toolbar-title>
 
-      <v-list-item v-if="accountState === 0" @click="exit" class="d-flex d-flex-none right=100 ml-auto ">
+      <v-list-item v-if="accountState() === 0" @click="exit" class="d-flex d-flex-none right=100 ml-auto ">
         <v-list-item-title>Sign out</v-list-item-title>
         <v-list-item-icon>
           <v-icon>exit_to_app</v-icon>
@@ -23,7 +23,7 @@
               </v-list-item-icon>
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>  
-            <v-list-group v-show="accountState === 0" prepend-icon="people" value="true">
+            <v-list-group v-show="accountState() === 0" prepend-icon="people" value="true">
               <template v-slot:activator>
                 <v-list-item-title>Friends</v-list-item-title>
               </template>
@@ -74,17 +74,18 @@ export default {
     }
   },
   computed: {
-    accountState () {
-      store.dispatch('SET_USERISAUTHORITED');
-      return store.getters.ACCOUNTSTATE;
-    },
   },
   methods: {
     exit() {
       axios.post(store.getters.URLS.API_URL + "auth/logout")
         .then(() => {
-          router.go(store.getters.URLS.API_URL + "account")
+          this.accountState()
+          router.push({ name: "Home"})
         })
+    },
+    accountState() {
+      store.dispatch('SET_USERISAUTHORITED');
+      return store.getters.ACCOUNTSTATE;
     },
     async getNewInvites() {
       if (store.getters.ACCOUNTSTATE === 0) {
