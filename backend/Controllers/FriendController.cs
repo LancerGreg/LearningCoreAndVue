@@ -45,5 +45,9 @@ namespace backend.Controllers
         [HttpGet("get_user_by_name")]
         public JsonResult GetUserByName(string firstName = "", string lastName = "") =>
             new JsonResult(_friendService.GetUsersByName(User, firstName.ToLower(), lastName == null ? "" : lastName.ToLower()));
+
+        [HttpGet("get_graph_data")]
+        public async Task<JsonResult> GetGraphData(int range) =>
+            new JsonResult(await _friendService.GetGraphData(User, range));
     }
 }

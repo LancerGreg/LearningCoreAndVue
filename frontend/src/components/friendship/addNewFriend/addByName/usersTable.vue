@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="users" :options.sync="options" :server-items-length="totalUsers" :loading="loading" class="elevation-4">
+    <v-data-table :headers="headers" :items="users" :loading="loading" class="elevation-1">
       <template v-slot:top> 
         <v-toolbar flat>
           <v-toolbar-title>{{ match }}</v-toolbar-title>
@@ -76,10 +76,11 @@ export default {
                     text: "Full Name",
                     align: "left",
                     sortable: false,
-                    value: "FullName"
+                    value: "FullName",
+                    width: '30%'
                 },
-                { text: "First Name", value: "FirstName", sortable: false },
-                { text: "Last Name", value: "LastName", sortable: false },
+                { text: "First Name", value: "FirstName", sortable: false, width: '25%' },
+                { text: "Last Name", value: "LastName", sortable: false, width: '25%' },
                 { text: 'Send Invite', value: 'actions', sortable: false },
             ],
             dialogFriendship: false,

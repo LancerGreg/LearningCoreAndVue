@@ -3,7 +3,7 @@
         <div class="px-2">
             <h2>Paste friend phone to the <b>search</b></h2>
             <v-text-field label="search" v-model.lazy.trim="search"></v-text-field>
-            <v-data-table :headers="headers" :items="users" :options.sync="options" :server-items-length="totalUsers" :loading="loading" class="elevation-4">
+            <v-data-table :headers="headers" :items="users" :loading="loading" class="elevation-1">
               <template v-slot:top> 
                 <v-toolbar flat>
                   <v-dialog v-model="dialogFriendship" max-width="600px">
@@ -235,5 +235,8 @@ export default {
 .v-icon-action {
     margin: 0 0 0 10px;
     padding: 2px;
+}
+.v-data-footer {
+  display: none !important;
 }
 </style>
