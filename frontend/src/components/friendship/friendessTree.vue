@@ -8,6 +8,7 @@
 import store from "../../store"
 import axios from 'axios'
 
+// documentation - https://github.com/emiliorizzo/vue-d3-network
 import D3Network from 'vue-d3-network'
 
 export default {
@@ -31,7 +32,7 @@ export default {
     }
   },
   async beforeMount() {
-    await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=4")
+    await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=2")
     .then((response) => {
       this.nodes = response.data.Item1.map(function(user) {
         return { id: user.Id, name: user.FullName,  };

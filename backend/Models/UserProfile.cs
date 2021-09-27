@@ -18,7 +18,7 @@ namespace backend.Models
         {
             FirstName = user.FirstName != null ? user.FirstName : "";
             LastName = user.LastName != null ? user.LastName : "";
-            Phone = user.PhoneNumber != null ? user.PhoneNumber : "";
+            Phone = user.PhoneNumber != null && user.PhoneNumberConfirmed ? user.PhoneNumber : "";
             Email = user.Email != null ? user.Email : "";
         }
     }

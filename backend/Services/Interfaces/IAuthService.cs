@@ -3,7 +3,9 @@ using backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Twilio.AspNet.Common;
 
 namespace backend.Services.Interfaces
 {
@@ -16,5 +18,7 @@ namespace backend.Services.Interfaces
         Task<ActionAuthResult> Logout();
         Task<ActionAuthResult> ResetPasswordRequest(string email);
         Task<ActionAuthResult> ResetPassword(string email, string password, string token);
+        Task<ActionAuthResult> ResetNumberPhone(ClaimsPrincipal curentUser, string NumberPhone);
+        Task<ActionAuthResult> ConfirmResetNumberPhone(ClaimsPrincipal curentUser, string token);
     }
 }

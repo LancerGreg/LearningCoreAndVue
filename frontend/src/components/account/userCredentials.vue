@@ -4,6 +4,20 @@
       <h2>Welcome <strong>{{userProfile.FirstName}}</strong>!</h2>      
       <v-card class="overflow-hidden" color="grey darken-1" dark>        
         <v-toolbar flat color="purple">
+          <v-dialog v-model="dialogConfirmToken" max-width="500px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">To verify your phone number, enter the verification code that was sent to this number.</span>
+              </v-card-title>
+              <v-text-field color="white" label="Verify change phone number code" v-model="token"></v-text-field>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="confirmToken">
+                  Check verify code
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-icon>mdi-account</v-icon>
           <v-toolbar-title class="font-weight-light">
             User Profile
@@ -50,6 +64,8 @@ import axios from 'axios'
 export default {
   data: () => {
       return {
+        token: "",
+        dialogConfirmToken: false,
         hasSaved: false,
         isEditing: null,
         model: null,
@@ -69,15 +85,33 @@ export default {
         Email: this.userProfile.Email,
         Password: this.userProfile.Password
       })
-      .then(() => {
-        this.isEditing = !this.isEditing
-        this.hasSaved = true
+      .then(response => {
+        if (response.data === "ResetNumberPhoneTokenSend") {
+          this.dialogConfirmToken = true
+        } else if (response.data.includes("ErrorOnSendMessage")) {
+          alert("Error\n" + response.data)
+        } else {
+          this.isEditing = !this.isEditing
+          this.hasSaved = true
+        }
       }).catch(error => {
         error.response.data.forEach(element => {
           alert(element.Code + "\n" + element.Description)
         });
       });
     },
+    async confirmToken() {
+      axios.post(store.getters.URLS.API_URL + "auth/confirm_reset_number_phone?token=" + this.token)
+      .then(response => {
+        debugger;
+        response;
+        this.dialogConfirmToken = false
+        this.isEditing = !this.isEditing
+        this.hasSaved = true
+      }).catch(() => {
+        alert("Error\nYou enter not right verify code")
+      });
+    }
   },
   mounted() {
     store.dispatch('SET_USERPROFILE');

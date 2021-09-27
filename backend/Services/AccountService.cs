@@ -25,11 +25,13 @@ namespace backend.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IHttpContextAccessor context;
+        private readonly IAuthService _authService;
 
-        public AccountService(AppDbContext dbContext, UserManager<AppUser> userManager, IHttpContextAccessor context) : base(dbContext)
+        public AccountService(AppDbContext dbContext, UserManager<AppUser> userManager, IHttpContextAccessor context, IAuthService authService) : base(dbContext)
         {
             _userManager = userManager;
             this.context = context;
+            _authService = authService;
         }
 
         public AppUser GetUser(string id) => dbContext.Users.FirstOrDefault(_ => _.Id == id);
@@ -38,10 +40,25 @@ namespace backend.Services
 
         public async Task<ActionAccountResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile)
         {
+            var message = "";
             var user = await _userManager.GetUserAsync(claimsPrincipal);
 
             user.FirstName = userProfile.FirstName;
             user.LastName = userProfile.LastName;
+
+            if ((user.PhoneNumber != userProfile.Phone) || !user.PhoneNumberConfirmed)
+            {
+                try
+                {
+                    await _authService.ResetNumberPhone(claimsPrincipal, userProfile.Phone);
+                    message = "ResetNumberPhoneTokenSend";
+                }
+                catch (Exception e)
+                {
+                    message = "ErrorOnSendMessage\n" + e.Message;
+                }
+               
+            }
             user.PhoneNumber = userProfile.Phone;
 
             if (userProfile.Password != null && userProfile.Password != "")
@@ -55,7 +72,7 @@ namespace backend.Services
                 {
                     user.PasswordHash = _passwordHasher.HashPassword(user, userProfile.Password);
                     await _userManager.UpdateAsync(user);
-                    return new ActionAccountResult(ActionStatus.Success, result);
+                    return new ActionAccountResult(ActionStatus.Success, result, message);
                 }
                 else
                 {
@@ -64,7 +81,7 @@ namespace backend.Services
             }
 
             await _userManager.UpdateAsync(user);
-            return new ActionAccountResult(ActionStatus.Success);
+            return new ActionAccountResult(ActionStatus.Success, message);
         }
     }
 }

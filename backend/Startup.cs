@@ -20,6 +20,8 @@ using Microsoft.OpenApi.Models;
 using backend.Helpers;
 using backend.Helpers.Interfaces;
 using backend.Services.Interfaces;
+using Twilio;
+using backend.Managers;
 
 namespace backend
 {
@@ -83,6 +85,10 @@ namespace backend
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.IsEssential = true;
             });
+
+            // Setup SMS settings
+            TwilioClient.Init(Configuration["Twilio:AuthToken"], Configuration["Twilio:AccountSID"]);
+            services.Configure<TwilioVerifySettings>(Configuration.GetSection("Twilio"));
 
             services.AddSpaStaticFiles(configuration: options => { options.RootPath = "wwwroot"; });
             services.AddMvc(option => option.EnableEndpointRouting = false);

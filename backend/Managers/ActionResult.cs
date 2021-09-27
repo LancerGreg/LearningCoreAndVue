@@ -53,16 +53,30 @@ namespace backend.Managers
     {
         public readonly ActionStatus _actionStatus;
         public readonly IdentityResult _identityResult = null;
+        public string message = "";
 
         public ActionAccountResult(ActionStatus actionStatus)
         {
             _actionStatus = actionStatus;
         }
 
+        public ActionAccountResult(ActionStatus actionStatus, string message)
+        {
+            _actionStatus = actionStatus;
+            this.message = message;
+        }
+
         public ActionAccountResult(ActionStatus actionStatus, IdentityResult identityResult)
         {
             _actionStatus = actionStatus;
             _identityResult = identityResult;
+        }
+
+        public ActionAccountResult(ActionStatus actionStatus, IdentityResult identityResult, string message)
+        {
+            _actionStatus = actionStatus;
+            _identityResult = identityResult;
+            this.message = message;
         }
 
         public List<Error> GetErrorList(IdentityResult identityResult) =>

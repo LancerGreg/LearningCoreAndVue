@@ -8,6 +8,13 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using backend.Helpers;
+using Twilio.AspNet.Common;
+using Twilio.TwiML;
 
 namespace backend.Services
 {
@@ -18,14 +25,16 @@ namespace backend.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IAuthorizeAttribute _authorize;
         private readonly ISMTP smtp;
+        private readonly TwilioVerifySettings _settings;
 
-        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp) : base(dbContext)
+        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp, IOptions<TwilioVerifySettings> settings) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _authorize = authorize;
             this.smtp = smtp;
+            _settings = settings.Value;
         }
 
         public async Task<ActionAuthResult> SignIn(bool isValid, SignInUser modelUser)
@@ -91,7 +100,7 @@ namespace backend.Services
             }
         }
 
-        public  async Task<ActionAuthResult> ResetPasswordRequest(string email)
+        public async Task<ActionAuthResult> ResetPasswordRequest(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
@@ -127,5 +136,50 @@ namespace backend.Services
         }
 
         public bool UserIsAuthorized() => _authorize.OnAuthorization();
+
+        public async Task<ActionAuthResult> ResetNumberPhone(ClaimsPrincipal curentUser, string NumberPhone)
+        {
+            var user = await _userManager.GetUserAsync(curentUser);
+
+            TwilioClient.Init(TwilioHelper.TwilioAccountSID(_configuration), TwilioHelper.TwilioAuthToken(_configuration));
+            var changePhoneNumberToken = await _userManager.GenerateChangePhoneNumberTokenAsync(await _userManager.GetUserAsync(curentUser), NumberPhone);
+
+            var message = MessageResource.Create(
+                body: "\n\nFor comfirm your phone number enter this code:\n\n" + changePhoneNumberToken,
+                from: new Twilio.Types.PhoneNumber(TwilioHelper.TwilioPhone(_configuration)),
+                to: new Twilio.Types.PhoneNumber(NumberPhone)
+            );
+
+            Console.WriteLine(message.Sid);
+
+            if (message.Sid == "pending")
+            {
+                user.PhoneNumber = NumberPhone;
+                await _userManager.UpdateAsync(user);
+
+                return new ActionAuthResult(ActionStatus.Success);
+            } 
+            else
+            {
+                return new ActionAuthResult(ActionStatus.Error);
+            }
+        }
+
+        public async Task<ActionAuthResult> ConfirmResetNumberPhone(ClaimsPrincipal curentUser, string token)
+        {
+            var user = await _userManager.GetUserAsync(curentUser);
+
+            var result = await _userManager.VerifyChangePhoneNumberTokenAsync(user, token, user.PhoneNumber);
+            if (result)
+            {
+                user.PhoneNumberConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return new ActionAuthResult(ActionStatus.Success);
+            }
+            else
+            {
+                return new ActionAuthResult(ActionStatus.Error);
+            }
+        }
     }
 }

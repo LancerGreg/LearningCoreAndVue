@@ -34,7 +34,7 @@ namespace backend.Controllers
         {
             if (actionResult._actionStatus == ActionStatus.Success)
             {
-                return Ok(ActionStatus.Success.ToString());
+                return actionResult.message != "" ? Ok(actionResult.message) : Ok(ActionStatus.Success.ToString());
             }
             else
             {

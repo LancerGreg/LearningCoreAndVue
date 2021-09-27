@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Twilio.AspNet.Common;
 
 namespace backend.Controllers
 {
@@ -48,6 +49,14 @@ namespace backend.Controllers
         [HttpPost("confirm_reset_password")]
         public async Task<IActionResult> ConfirmResetPassword(string email, string passwrod, string token) =>
             GetActionResult(await _authService.ResetPassword(email, passwrod, token));
+
+        [HttpPost("reset_number_phone")]
+        public async Task<IActionResult> ResetNumberPhone(string NumberPhone) =>
+            GetActionResult(await _authService.ResetNumberPhone(User, NumberPhone));
+
+        [HttpPost("confirm_reset_number_phone")]
+        public async Task<IActionResult> ConfirmResetNumberPhone(string token) =>
+            GetActionResult(await _authService.ConfirmResetNumberPhone(User, token));
 
         private IActionResult GetActionResult(backend.Managers.ActionAuthResult actionResult)
         {
