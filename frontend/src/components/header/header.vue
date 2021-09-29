@@ -79,6 +79,7 @@ export default {
     exit() {
       axios.post(store.getters.URLS.API_URL + "auth/logout")
         .then(() => {
+          store.commit('SET_ACCOUNTSTATE', 1);
           this.accountState()
           router.push({ name: "Home"})
         })

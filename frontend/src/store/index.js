@@ -53,7 +53,6 @@ const store = new Vuex.Store({
     SET_USERISAUTHORITED: (state, payload) => {
       state.userIsAuthorized = payload;
       if (payload) state.accountState = 0;
-      else state.accountState = 1;
     },
     SET_USERPROFILE: (state, payload) => {
       state.userProfile = payload;
