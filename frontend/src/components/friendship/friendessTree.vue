@@ -84,6 +84,54 @@
       </v-card-text>
     </v-card>
   </v-menu>
+
+  <v-card v-if="displayUserInfo" class="v-card-user-info">
+    <v-list>
+      <v-list-item>
+        <v-list-item-avatar>
+          <img src="../../assets/images/avatars/EmtyAvatar_40x40.png" alt="Avatar">
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="text-white-space-break-spaces">{{ userInfo.fullName }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item>        
+        <v-list-item-action class="button-status">          
+          <v-btn v-if="userInfo.thisUser" class="button-status text-center" dark>
+            It's you
+          </v-btn>
+          <v-btn v-else-if="userInfo.isFriend" class="button-status button-friend text-center" dark>
+            Friend
+          </v-btn>
+          <v-btn v-else-if="!userInfo.isFriend && userInfo.haveInvite" class="button-status button-wait text-center" dark>
+            Invitation didn't confirm
+          </v-btn>
+          <v-btn v-else-if="!userInfo.haveInvite" class="button-status button-invite text-center" dark @click="showDialogInvite">
+            Request for friendship
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+    </v-list>
+    
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn text @click="closeUserInfo">
+        Close
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+
+  <v-dialog v-model="dialogInvite" max-width="600px">
+    <v-card>
+      <v-card-title class="text-h5">Are you sure you want to send friendship invite?</v-card-title>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="closeDialogInvite">Cancel</v-btn>
+        <v-btn color="blue darken-1" text @click="sendInvite">Yes</v-btn>
+        <v-spacer></v-spacer>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </div>
 </template>
 
@@ -108,6 +156,8 @@ export default {
         y: 0
       },
       hints: true,
+      displayUserInfo: false,
+      dialogInvite: false,
       menuOptions: {
         force: 5000,
         fontSize: 18,
@@ -117,7 +167,7 @@ export default {
         
         simplifiedLink: false,
         friendsRange: 1,
-      }
+      },
     }
   },
   computed:{
@@ -133,13 +183,23 @@ export default {
           y: this.offset.y
         }
       }
+    },
+    userInfo(){
+      return{
+        id: "",
+        nodeId: "",
+        fullName: "",
+        thisUser: false,
+        isFriend: false,
+        haveInvite: false,
+      }
     }
   },
   async beforeMount() {
     await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
     .then((response) => {
       this.nodes = response.data.Item1.map(function(user) {
-        return { id: user.Id, name: user.FullName, _color: "#000", _labelClass: "node-label" };
+        return { id: user.Id, name: user.FullName, _color: "#000", _labelClass: "node-label", _userInfo: { userId: user.Id, fullName: user.FullName, isFriend: user.IsFriend, haveInvite: user.HaveInvite } };
       });
       this.links = response.data.Item2.map(function(friendship) {
         return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
@@ -152,32 +212,71 @@ export default {
     toTarget(event, node){
       // delay is needed in case pull by the node
       setTimeout(() => {
-        // the node is go to the center
-        this.offset.x += window.innerWidth / 2 - node.x
-        this.offset.y += window.innerHeight / 2 - node.y
-        // change all colors to default 
-        this.nodes.map(e => { e._color = "#000"; e._labelClass = ""; })
-        this.links.map(e => e._color = "rgba(145,145,145,0.25)")
-        // change color for selected node
-        node._color = "#ff0"
-        node._labelClass = "selected-node-title"
-        // change color for friends node
-        this.nodes.map(n => {
-          this.links.map(l => {
-            if ((l.sid === node.id && l.tid === n.id) || (l.sid === n.id && l.tid === node.id)) {
-              n._color = "#f00"
-              n._labelClass = "friend-node-title"
-              l._color = "rgba(0, 207, 255, 0.25)"
-            }
-          })
-        })
+        this.highlightTarget(node)
+        this.showUserInfo(node)
       }, 120);      
+    },
+    highlightTarget(node) {
+      // the node is go to the center
+      this.offset.x += window.innerWidth / 2 - node.x
+      this.offset.y += window.innerHeight / 2 - node.y
+
+      // change all colors to default 
+      this.nodes.map(e => { e._color = "#000"; e._labelClass = ""; })
+      this.links.map(e => e._color = "rgba(145,145,145,0.25)")
+
+      // change color for selected node
+      node._color = "#ff0"
+      node._labelClass = "selected-node-title"
+
+      // change color for friends node
+      this.nodes.map(n => {
+        this.links.map(l => {
+          if ((l.sid === node.id && l.tid === n.id) || (l.sid === n.id && l.tid === node.id)) {
+            n._color = "#f00"
+            n._labelClass = "friend-node-title"
+            l._color = "rgba(0, 207, 255, 0.25)"
+          }
+        })
+      })
+    },
+    showUserInfo(node) {
+      this.displayUserInfo = true
+      this.userInfo.nodeId = node.id
+      this.userInfo.id = node._userInfo.userId
+      this.userInfo.thisUser = node.index == 0
+      this.userInfo.fullName = node._userInfo.fullName
+      this.userInfo.isFriend = node._userInfo.isFriend
+      this.userInfo.haveInvite = node._userInfo.haveInvite
+    },
+    closeUserInfo() {
+      this.displayUserInfo = false
+    },
+    showDialogInvite() {
+      this.dialogInvite = true
+    },
+    closeDialogInvite() {
+      this.dialogInvite = false
+    },
+    sendInvite() {
+      axios.post(store.getters.URLS.API_URL + "invite/invite_request_by_id?userId=" + this.userInfo.id)
+      .then(() => {
+        this.closeDialogInvite()
+        this.userInfo.haveInvite = true
+        this.nodes = this.nodes.map(e => {
+          if(e.id == this.userInfo.nodeId) e._userInfo.haveInvite = true; 
+          return e;
+        })
+      }).catch(() => {
+        this.closeDenie()
+        alert("Error 500\n Serve not working")
+      });
     },
     async filterFriends(){
       await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
       .then((response) => {
         this.nodes = response.data.Item1.map(function(user) {
-          return { id: user.Id, name: user.FullName, _color: "#000", _labelClass: "node-label"};
+          return { id: user.Id, name: user.FullName, _color: "#000", _labelClass: "node-label", _userInfo: { userId: user.Id, fullName: user.FullName, isFriend: user.IsFriend, haveInvite: user.HaveInvite } };
         });
         this.links = response.data.Item2.map(function(friendship) {
           return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
@@ -219,6 +318,33 @@ export default {
     max-width: 500px;
   }
 
+  .v-card-user-info {
+    position: absolute;
+    right: 50px;
+    top: 50px;
+    width: unset !important;
+    height: unset !important;
+    padding: 5px;
+    border-radius: 5px;
+    max-width: 500px;
+  }
+
+  .button-status {
+    width: 100%;    
+  }
+
+  .button-friend {
+    background: #008000 !important;
+  }
+
+  .button-wait {
+    background: #0000ff !important;
+  }
+
+  .button-invite {
+    background: #ffa500 !important;
+  }
+
   .text-white-space-break-spaces {
     white-space: break-spaces !important;
   }
@@ -235,11 +361,11 @@ export default {
   }
   .selected-node-title {
     fill: #ff0 !important;
-    text-shadow: 1 1 2px #000;
+    text-shadow: 1px 1px 2px #000;
   }
   .friend-node-title {
     fill: #f00 !important;
-    text-shadow: 1 1 2px #000;
+    text-shadow: 1px 1px 2px #000;
   }
   .node {
     position: relative;

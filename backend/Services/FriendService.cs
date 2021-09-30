@@ -88,7 +88,11 @@ namespace backend.Services
                 }
             }
 
-            return (users.Select(_ => new { Id = _.Id, FullName = _.FirstName + " " + _.LastName }), friendships.Where(_ => users.Any(u => u.Id == _.AppUserId) && users.Any(u => u.Id == _.FriendId)).Select(_ => new { Id = _.Id, FirstUserId = _.AppUserId, SecondUserId = _.FriendId }));
+            return 
+            (
+                users.Select(_ => new { Id = _.Id, FullName = _.FirstName + " " + _.LastName, IsFriend = friendships.Any(fs => (fs.AppUserId == user.Id && fs.FriendId == _.Id) || (fs.AppUserId == _.Id && fs.FriendId == user.Id)), HaveInvite = dbContext.Invites.Any(i => (i.SenderId == user.Id && i.RecipientId == _.Id) || (i.SenderId == _.Id && i.RecipientId == user.Id)) }), 
+                friendships.Where(_ => users.Any(u => u.Id == _.AppUserId) && users.Any(u => u.Id == _.FriendId)).Select(_ => new { Id = _.Id, FirstUserId = _.AppUserId, SecondUserId = _.FriendId })
+            );
         }
     }
 }
