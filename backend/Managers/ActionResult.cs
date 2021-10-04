@@ -137,6 +137,16 @@ namespace backend.Managers
         }
     }
 
+    public class TestingResult
+    {
+        public readonly ActionStatus _actionStatus;
+
+        public TestingResult(ActionStatus actionStatus)
+        {
+            _actionStatus = actionStatus;
+        }
+    }
+
     public enum ActionStatus
     {
         Error = 0,

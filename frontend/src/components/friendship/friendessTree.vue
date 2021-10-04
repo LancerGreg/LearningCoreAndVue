@@ -5,7 +5,7 @@
   <v-menu :close-on-content-click="false" origin="center center">
     <template v-slot:activator="{ on, attrs }">
       <v-btn v-bind="attrs" v-on="on" class="option-button">
-        <v-img max-height="150" max-width="150" src="../../assets/images/friendshipTree/Options.png" lazy-src="../../assets/images/friendshipTree/Options_lazy.png">
+        <v-img max-height="150" max-width="150" width="75px" src="../../assets/images/friendshipTree/Options.png" lazy-src="../../assets/images/friendshipTree/Options_lazy.png">
           <template v-slot:placeholder>
             <v-row class="fill-height ma-0" align="center" justify="center" >
               <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
@@ -14,6 +14,7 @@
         </v-img>
       </v-btn>
     </template>
+
     <v-card class="v-card-option">
       <v-card-text>
         <v-row>
@@ -74,7 +75,7 @@
         </v-row>
         <v-row>
           <v-col class="pr-4">
-            <v-slider class="option-input" v-model="menuOptions.friendsRange" label="Friends range" min="1" max="6" hide-details>
+            <v-slider class="option-input" v-model="menuOptions.friendsRange" label="Friends range" min="1" max="8" hide-details>
               <template v-slot:append>
                 <v-text-field v-model="menuOptions.friendsRange" class="mt-0 pt-0" hide-details single-line type="number" style="width: 60px"></v-text-field>
               </template>
@@ -95,6 +96,11 @@
           <v-list-item-title class="text-white-space-break-spaces">{{ userInfo.fullName }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-subtitle class="text-white-space-break-spaces">Total count of nodes: {{ nodes.length }}</v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item>        
         <v-list-item-action class="button-status">          
           <v-btn v-if="userInfo.thisUser" class="button-status text-center" dark>
@@ -112,7 +118,6 @@
         </v-list-item-action>
       </v-list-item>
     </v-list>
-    
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn text @click="closeUserInfo">
@@ -306,12 +311,11 @@ export default {
   .option-button {
     position: absolute;
     display: flex;
-    left: 50px;
-    top: 50px;
+    left: 25px;
+    top: 25px;
     width: unset !important;
     height: unset !important;
-    padding: 5px;
-    border-radius: 5px;
+    padding: 5px !important;
   }
 
   .v-card-option {
@@ -320,17 +324,20 @@ export default {
 
   .v-card-user-info {
     position: absolute;
-    right: 50px;
-    top: 50px;
+    right: 25px;
+    top: 25px;
     width: unset !important;
     height: unset !important;
     padding: 5px;
     border-radius: 5px;
     max-width: 500px;
+    margin: 0 0 0 115px;
   }
 
   .button-status {
-    width: 100%;    
+    margin-right: unset !important;
+    padding: 0 !important;
+    width: 100%;
   }
 
   .button-friend {

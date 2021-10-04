@@ -24,11 +24,11 @@ namespace backend.Services
         public async Task<IEnumerable<AppUser>> GetFriends(ClaimsPrincipal curentUser)
         {
             var user = await _userManager.GetUserAsync(curentUser);
-            return dbContext.Users.Where(_ => dbContext.Friendships.Where(_ => _.AppUserId == user.Id).Select(_ => _.FriendId).Contains(_.Id));
+            return dbContext.Users.Where(_ => dbContext.Friendships.Where(fs => fs.AppUserId == user.Id).Select(_ => _.FriendId).Contains(_.Id));
         }
 
         public IEnumerable<AppUser> GetUserFriends(string userId) =>
-            dbContext.Users.Where(_ => dbContext.Friendships.Where(_ => _.AppUserId == userId).Select(_ => _.FriendId).Contains(_.Id));
+            dbContext.Users.Where(_ => dbContext.Friendships.Where(fs => fs.AppUserId == userId).Select(_ => _.FriendId).Contains(_.Id));
 
         public async Task<AppUser> GetUserById(string userId) =>
             await dbContext.Users.FirstOrDefaultAsync(_ => _.Id == userId);

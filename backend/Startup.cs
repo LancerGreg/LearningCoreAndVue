@@ -42,6 +42,7 @@ namespace backend
             services.AddTransient<IAuthorizeAttribute, AuthorizeAttribute>();
             services.AddTransient<IFriendService, FriendService>();
             services.AddTransient<IInviteService, InviteService>();
+            services.AddTransient<ITestingService, TestingService>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
