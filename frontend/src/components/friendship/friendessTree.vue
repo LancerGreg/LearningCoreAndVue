@@ -22,8 +22,12 @@
       <v-card-text>
         <v-row>
           <v-col class="pr-4">
+            <div class="d-flex">
+              <v-checkbox v-model="menuOptions.pinNodes" label="Pin all nodes" color="success" class="mr-auto" @click="pinAllNodes"></v-checkbox>
+              <v-checkbox v-model="menuOptions.pinCentralNode" label="Pin central node" color="success" class="mr-auto" @click="pinCentralNode"></v-checkbox>
+            </div>
             <v-checkbox v-model="menuOptions.optionFontSize" label="Show users name" color="success"></v-checkbox>
-            <v-slider v-show="menuOptions.optionFontSize" class="option-input" v-model="menuOptions.fontSize" label="Text size" min="8" max="72" hide-details>
+            <v-slider v-if="menuOptions.optionFontSize" class="option-input" v-model="menuOptions.fontSize" label="Text size" min="8" max="72" hide-details>
               <template v-slot:append>
                 <v-text-field v-model="menuOptions.fontSize" class="mt-0 pt-0" hide-details single-line type="number" style="width: 60px"></v-text-field>
               </template>
@@ -171,6 +175,8 @@ export default {
       menuOptions: {
         force: 5000,
         fontSize: 18,
+        pinNodes: false,
+        pinCentralNode: false,
         optionFontSize: true,
         nodeSize: 20,
         linkWidth: 3,
@@ -209,10 +215,11 @@ export default {
         isFriend: false,
         haveInvite: false,
       }
-    }
+    },
   },
   async beforeMount() {
     this.loader = true
+    this.menuOptions.pinNodes = false
     await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
     .then((response) => {
       this.nodes = response.data.Item1.map(function(user) {
@@ -234,9 +241,11 @@ export default {
       }, 120);      
     },
     highlightTarget(node) {
-      // the node is go to the center
-      this.offset.x += window.innerWidth / 2 - node.x
-      this.offset.y += window.innerHeight / 2 - node.y
+      if (!this.menuOptions.pinNodes && !this.menuOptions.pinCentralNode) {
+        // the node is go to the center
+        this.offset.x += window.innerWidth / 2 - node.x
+        this.offset.y += window.innerHeight / 2 - node.y
+      }
 
       // change all colors to default 
       this.nodes.map(e => { e._color = "#000"; e._labelClass = ""; })
@@ -291,6 +300,7 @@ export default {
     },
     async filterFriends(){
       this.loader = true
+      this.menuOptions.pinNodes = false
       await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
       .then((response) => {
         this.nodes = response.data.Item1.map(function(user) {
@@ -302,8 +312,39 @@ export default {
       }).catch(() => {
         alert("Error 500\n Serve not working")
       }).finally(() => this.loader = false);
+    },
+    pinAllNodes () {
+      this.nodes = this.nodes.map(node => {
+        if (this.menuOptions.pinNodes) {
+          node.pinned = true
+          node.fx = node.x
+          node.fy = node.y
+        } else {
+          node.pinned = false
+          node.fx = null
+          node.fy = null
+        }
+        return node
+      })
+      this.pinCentralNode()
+    },
+    pinCentralNode() {
+      var node = this.nodes[0]
+      if (this.menuOptions.pinCentralNode) {        
+        node.pinned = false
+        node.x = window.innerWidth / 2
+        node.y = window.innerHeight / 2
+        node.pinned = true
+        node.fx = node.x
+        node.fy = node.y
+      } else if (!this.menuOptions.pinNodes) {
+        node.pinned = false
+        node.fx = null
+        node.fy = null
+      }
+      this.nodes[0] = node
     }
-  }
+  },
 }
 </script>
 
