@@ -41,55 +41,49 @@ namespace backend.Services
             return new TestingResult(ActionStatus.Success);
         }
 
-        public TestingResult CreateTestFriendships(int from, int? countUsers)
+        public async Task<TestingResult> CreateTestFriendships(int from, int? countUsers)
         {
             var random = new Random();
-            var users = dbContext.Users.AsEnumerable().Where(_ => _.Email.Contains("test") && Int32.Parse(Regex.Match(_.Email, @"\d+").Value) > from);
+            var usersId = dbContext.Users.AsEnumerable().Where(_ => _.Email.Contains("test") && Int32.Parse(Regex.Match(_.Email, @"\d+").Value) > from).Select(_ => _.Id);
             
             if (countUsers.HasValue)
-                users.Take(countUsers.Value);
+                usersId.Take(countUsers.Value);
 
-            users.ToList().ForEach(_ =>
+            foreach (var id in usersId)
             {
-                var randomPercent = random.Next(99) + 1;
-                int countFriend = PercentageFriendsNumber.FirstOrDefault(_ => _.fromPercent <= randomPercent && _.toPercent >= randomPercent).count - _friendService.GetUserFriends(_.Id).Count();
-                for (int i = 0; i < countFriend; i++)
-                {
-                    var invite = new Invite()
-                    {
-                        SenderId = _.Id,
-                        RecipientId = GetRandomFutureFriendId(users, _.Id, random),
-                        WhenSend = DateTime.Now,
-                        WhenDecide = DateTime.Now,
-                        Decide = Decide.Accept,
-                    };
-
-                    dbContext.Invites.Add(invite);
-                    dbContext.SaveChanges();
-
-                    var senderFriendship = new Friendship() { AppUserId = invite.SenderId, FriendId = invite.RecipientId };
-                    var RecipientFriendship = new Friendship() { AppUserId = invite.RecipientId, FriendId = invite.SenderId };
-                    dbContext.Friendships.Add(senderFriendship);
-                    dbContext.Friendships.Add(RecipientFriendship);
-
-                    dbContext.SaveChanges();
-                }
-            });
+                await AddFriendship(usersId, id, random);
+            }
 
             return new TestingResult(ActionStatus.Success);
         }
 
-        private string GetRandomFutureFriendId(IEnumerable<AppUser> users, string currentUserId, Random random)
+        private async Task AddFriendship(IEnumerable<string> usersId, string id, Random random)
         {
-            var randomFutureFriendId = users.ElementAt(random.Next(users.Count())).Id;
-            if (dbContext.Friendships.Any(_ => _.AppUserId == currentUserId && _.FriendId == randomFutureFriendId))
+            var randomPercent = random.Next(99) + 1;
+            int countFriend = PercentageFriendsNumber.FirstOrDefault(_ => _.fromPercent <= randomPercent && _.toPercent >= randomPercent).count - _friendService.GetUserFriends(id).Count();
+            for (int i = 0; i < countFriend; i++)
             {
-                return GetRandomFutureFriendId(users, currentUserId, random);
-            }
-            else
-            {
-                return randomFutureFriendId;
+                var invite = new Invite()
+                {
+                    SenderId = id,
+                    RecipientId = GetRandomFutureFriendId(usersId, id, random),
+                    WhenSend = DateTime.Now,
+                    WhenDecide = DateTime.Now,
+                    Decide = Decide.Accept,
+                };
+
+                var senderFriendship = new Friendship() { AppUserId = invite.SenderId, FriendId = invite.RecipientId };
+                var RecipientFriendship = new Friendship() { AppUserId = invite.RecipientId, FriendId = invite.SenderId };
+
+                await dbContext.Invites.AddAsync(invite);
+                await dbContext.Friendships.AddAsync(senderFriendship);
+                await dbContext.Friendships.AddAsync(RecipientFriendship);
+
+                await dbContext.SaveChangesAsync();
             }
         }
+
+        private string GetRandomFutureFriendId(IEnumerable<string> usersId, string currentUserId, Random random) => 
+            usersId.Where(id => id != currentUserId && !dbContext.Friendships.AsEnumerable().Any(fs => fs.AppUserId == id)).ElementAt(random.Next(usersId.Count()));
     }
 }

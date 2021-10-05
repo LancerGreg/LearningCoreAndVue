@@ -25,8 +25,8 @@ namespace backend.Controllers
             GetActionResult(await _testingService.CreateTestUsers(count));
 
         [HttpPost("create_test_friendships")]
-        public IActionResult CreateTestFriendships(int from, int? countUsers) =>
-            GetActionResult(_testingService.CreateTestFriendships(from, countUsers));
+        public async Task<IActionResult> CreateTestFriendships(int from, int? countUsers) =>
+            GetActionResult(await _testingService.CreateTestFriendships(from, countUsers));
 
         private IActionResult GetActionResult(backend.Managers.TestingResult actionResult)
         {

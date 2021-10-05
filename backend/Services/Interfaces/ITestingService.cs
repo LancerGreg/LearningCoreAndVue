@@ -9,6 +9,6 @@ namespace backend.Services.Interfaces
     public interface ITestingService
     {
         Task<TestingResult> CreateTestUsers(int count);
-        TestingResult CreateTestFriendships(int from, int? countUsers);
+        Task<TestingResult> CreateTestFriendships(int from, int? countUsers);
     }
 }

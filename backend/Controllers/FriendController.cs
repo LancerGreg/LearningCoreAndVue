@@ -35,16 +35,16 @@ namespace backend.Controllers
             new JsonResult(_friendService.GetUserById(userId));
 
         [HttpGet("get_user_by_email")]
-        public JsonResult GetUserByEmail(string userEmail) =>
-            new JsonResult(_friendService.GetUserByEmail(User, userEmail.ToLower()));
+        public async Task<JsonResult> GetUserByEmail(string userEmail) =>
+            new JsonResult(await _friendService.GetUserByEmail(User, userEmail.ToLower()));
 
         [HttpGet("get_user_by_phone")]
-        public JsonResult GetUserByPhone(string userPhone) =>
-            new JsonResult(_friendService.GetUserByPhone(User, userPhone));
+        public async Task<JsonResult> GetUserByPhone(string userPhone) =>
+            new JsonResult(await _friendService.GetUserByPhone(User, userPhone));
 
         [HttpGet("get_user_by_name")]
-        public JsonResult GetUserByName(string firstName = "", string lastName = "") =>
-            new JsonResult(_friendService.GetUsersByName(User, firstName.ToLower(), lastName == null ? "" : lastName.ToLower()));
+        public async Task<JsonResult> GetUserByName(string firstName = "", string lastName = "") =>
+            new JsonResult(await _friendService.GetUsersByName(User, firstName.ToLower(), lastName == null ? "" : lastName.ToLower()));
 
         [HttpGet("get_graph_data")]
         public async Task<JsonResult> GetGraphData(int range, bool simplifiedLink) =>

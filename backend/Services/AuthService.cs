@@ -25,16 +25,14 @@ namespace backend.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IAuthorizeAttribute _authorize;
         private readonly ISMTP smtp;
-        private readonly TwilioVerifySettings _settings;
 
-        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp, IOptions<TwilioVerifySettings> settings) : base(dbContext)
+        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _authorize = authorize;
             this.smtp = smtp;
-            _settings = settings.Value;
         }
 
         public async Task<ActionAuthResult> SignIn(bool isValid, SignInUser modelUser)
