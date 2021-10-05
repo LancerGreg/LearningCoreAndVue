@@ -1,6 +1,9 @@
 <template>
 <div class="graph-box">
-  <d3-network :net-nodes="nodes" :net-links="links" :options="options" @node-click='toTarget' />
+  <div v-if="loader" class="loader">
+     <Loader :loaderPerams="loaderPerams" />
+  </div>
+  <d3-network v-else :net-nodes="nodes" :net-links="links" :options="options" @node-click='toTarget' />
   
   <v-menu :close-on-content-click="false" origin="center center">
     <template v-slot:activator="{ on, attrs }">
@@ -143,6 +146,7 @@
 <script>
 import store from "../../store"
 import axios from 'axios'
+import Loader from "../loader/loader.vue"
 
 // documentation - https://github.com/emiliorizzo/vue-d3-network
 import D3Network from 'vue-d3-network'
@@ -150,7 +154,8 @@ import D3Network from 'vue-d3-network'
 export default {
   name: "Friendess_Tree",  
   components: {
-    D3Network
+    D3Network,
+    Loader
   },
   data () {
     return {
@@ -172,6 +177,12 @@ export default {
         
         simplifiedLink: false,
         friendsRange: 1,
+      },
+      loader: false,
+      loaderPerams: {
+        size: 100,
+        color: "#1976d2",
+        width: 10
       },
     }
   },
@@ -201,6 +212,7 @@ export default {
     }
   },
   async beforeMount() {
+    this.loader = true
     await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
     .then((response) => {
       this.nodes = response.data.Item1.map(function(user) {
@@ -211,7 +223,7 @@ export default {
       });
     }).catch(() => {
       alert("Error 500\n Serve not working")
-    });
+    }).finally(() => this.loader = false);
   },
   methods: {
     toTarget(event, node){
@@ -278,6 +290,7 @@ export default {
       });
     },
     async filterFriends(){
+      this.loader = true
       await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink)
       .then((response) => {
         this.nodes = response.data.Item1.map(function(user) {
@@ -288,7 +301,7 @@ export default {
         });
       }).catch(() => {
         alert("Error 500\n Serve not working")
-      });
+      }).finally(() => this.loader = false);
     }
   }
 }
@@ -296,7 +309,13 @@ export default {
 
 <style src="vue-d3-network/dist/vue-d3-network.css"></style>
 
-<style scoped>
+<style scoped>  
+  .loader {
+    position: absolute;
+    left: calc(50vw - 50px);
+    top: calc(50vh - 50px); 
+  }
+
   .graph-box {
     bottom: 0;
     box-sizing: content-box;

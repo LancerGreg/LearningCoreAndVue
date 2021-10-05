@@ -26,7 +26,8 @@
               required></v-text-field>
           </v-flex>
           <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
-            <v-btn color="primary" @click="toSignIn">Sign In</v-btn>
+            <Loader v-if="loader" :loaderPerams="loaderPerams" />
+            <v-btn v-else color="primary" @click="toSignIn">Sign In</v-btn>
             <OnForggotPassword />
             <OnSignUp />
           </v-flex>
@@ -42,6 +43,7 @@ import store from '../../store'
 import axios from 'axios'
 import OnForggotPassword from '../account/buttons/onForggotPassword.vue'
 import OnSignUp from '../account/buttons/onSignUp.vue'
+import Loader from "../loader/loader.vue"
 
 export default {
   data: () => {
@@ -49,11 +51,18 @@ export default {
         SignInUser: {
           Email: "",
           Password: ""
-        }
+        },
+        loader: false,
+        loaderPerams: {
+          size: 40,
+          color: "#1976d2",
+          width: 5
+        },
       }
   },
   methods: {
     toSignIn () {
+      this.loader = true
       axios.post(store.getters.URLS.API_URL + "auth/sign_in", {
         Email: this.SignInUser.Email,
         Password: this.SignInUser.Password,
@@ -67,13 +76,14 @@ export default {
       }).catch(error => {
         error.response.data.forEach(element => {
           alert(element.Code + "\n" + element.Description)
-        });
-      });
+        });        
+      }).finally(() => this.loader = false);
     }
   },
   components: {
     OnForggotPassword,
-    OnSignUp
+    OnSignUp,
+    Loader
   }
 }
 </script>

@@ -1,16 +1,23 @@
 <template>
-    <div>
-    </div>
+<div class="loader">
+   <Loader :loaderPerams="loaderPerams" />
+</div>
 </template>
 
 <script>
 import store from '../../store'
 import axios from 'axios'
 import router from '../../router'
+import Loader from "../loader/loader.vue"
 
 export default {
   data() {
     return {
+      loaderPerams: {
+        size: 100,
+        color: "#1976d2",
+        width: 10
+      },
     }
   },
   methods: {
@@ -41,5 +48,16 @@ export default {
   beforeMount(){
      this.confirmEmail()
   },
+  components: {
+    Loader
+  }
 }
 </script>
+
+<style scoped>
+.loader {
+  position: absolute;
+  left: calc(50vw - 50px);
+  top: calc(50vh - 50px); 
+}
+</style>

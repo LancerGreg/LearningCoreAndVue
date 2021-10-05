@@ -92,7 +92,6 @@ export default {
         params: {
             handler() {
                 this.getDataFromApi().then(data => {
-                    console.log("GETDATA");
                     this.users = data.items;
                     this.totalUsers = data.total;
                 });

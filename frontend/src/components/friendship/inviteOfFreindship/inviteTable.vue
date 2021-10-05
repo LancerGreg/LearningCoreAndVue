@@ -41,7 +41,8 @@
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">
+      <Loader v-if="loader" :loaderPerams="loaderPerams" />
+      <v-btn v-else color="primary" @click="initialize">
         Reset
       </v-btn>
     </template>
@@ -51,11 +52,21 @@
 <script>
 import store from "../../../store"
 import axios from 'axios'
+import Loader from '../../loader/loader.vue'
 
   export default {
+    components: {
+        Loader
+    },
     data: () => ({
       dialogAccept: false,
       dialogDelete: false,
+      loader: false,
+      loaderPerams: {
+        size: 40,
+        color: "#1976d2",
+        width: 5
+      },
       headers: [
         {
           text: 'Full Name',
@@ -90,12 +101,14 @@ import axios from 'axios'
 
     methods: {
       initialize () {
+        this.loader = true
         axios.get(store.getters.URLS.API_URL + "invite/get_not_decide_invites")
         .then((response) => {          
           this.invites = response.data
         }).catch(() => {
           alert("Error 500\n Serve not working")
         });
+        this.loader = false
       },
 
       acceptInvite (item) {

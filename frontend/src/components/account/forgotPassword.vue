@@ -17,7 +17,8 @@
               required></v-text-field>
           </v-flex>
           <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
-            <v-btn color="primary" @click="reserPassword">Send request ot reset password</v-btn>
+            <Loader v-if="loader" :loaderPerams="loaderPerams" />
+            <v-btn v-else color="primary" @click="reserPassword()">Send request ot reset password</v-btn>
             <OnSignIn />
           </v-flex>
         </v-layout>
@@ -31,6 +32,7 @@
 import router from '../../router'
 import store from '../../store'
 import axios from 'axios'
+import Loader from "../loader/loader.vue"
 
 import OnSignIn from '../account/buttons/onSignIn.vue'
 
@@ -39,23 +41,30 @@ export default {
     return {
       ReserPasswordRequest: {
         Email: ""
-      }
+      },
+      loader: false,
+      loaderPerams: {
+        size: 40,
+        color: "#1976d2",
+        width: 5
+      },
     }
   },
   methods: {
     reserPassword() {
+      this.loader = true
       axios.post(store.getters.URLS.API_URL + "auth/forgot_password_request?email=" + this.ReserPasswordRequest.Email)
       .then(() => {
         alert("Forgot password request send to your email");
         router.push({ name: "Home"})
-      }).catch(error => {
-        console.log(error);
-        alert("ERROR\nEmail not found or not confirmed")
-      });
+      }).catch(() => {
+        alert("ERROR\nEmail not found or not confirmed")        
+      }).finally(() => this.loader = false);
     }
   },
   components: {
-    OnSignIn
+    OnSignIn,
+    Loader
   }
 }
 </script>

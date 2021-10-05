@@ -25,8 +25,9 @@
               type="password"
               required></v-text-field>
           </v-flex>
-          <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
-            <v-btn color="primary" @click="reserPassword">save</v-btn>
+          <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>            
+            <Loader v-if="loader" :loaderPerams="loaderPerams" />
+            <v-btn v-else color="primary" @click="reserPassword">save</v-btn>
           </v-flex>
         </v-layout>
       </form>
@@ -39,6 +40,7 @@
 import router from '../../router'
 import store from '../../store'
 import axios from 'axios'
+import Loader from "../loader/loader.vue"
 
 export default {
   data: () => {
@@ -46,7 +48,13 @@ export default {
       ReserPassword: {
         NewPassword: "",
         ConfirmPassword: ""
-      }
+      },
+      loader: false,
+      loaderPerams: {
+        size: 40,
+        color: "#1976d2",
+        width: 5
+      },
     }
   },
   methods: {
@@ -54,6 +62,7 @@ export default {
       if (this.ReserPassword.NewPassword !== this.ReserPassword.ConfirmPassword) {          
         alert("ERROR\nNewPassword not equals with ConfirmPassword")
       } else {
+        this.loader = true
         let uri = window.location.search.substring(1); 
         let params = new URLSearchParams(uri);
         let email = params.get("email");
@@ -77,13 +86,16 @@ export default {
             error.response.data.forEach(element => {
               alert(element.Code + "\n" + element.Description)
             });
-          });
+          })
         }).catch(error => {
           console.log(error);
           alert("ERROR\nEmail not found or not confirmed")
-        });
+        }).finally(() => this.loader = false);
       }
     }
   },
+  components: {
+    Loader
+  }
 }
 </script>
