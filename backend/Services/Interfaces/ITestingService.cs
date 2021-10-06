@@ -1,4 +1,6 @@
 ﻿using backend.Managers;
+using backend.Managers.ActionResult;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ namespace backend.Services.Interfaces
 {
     public interface ITestingService
     {
-        Task<TestingResult> CreateTestUsers(int count);
-        Task<TestingResult> CreateTestFriendships(int from, int? countUsers);
+        Task<IActionResult> CreateTestUsers(int count);
+        Task<IActionResult> CreateTestFriendships(int from, int? countUsers);
     }
 }

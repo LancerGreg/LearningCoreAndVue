@@ -31,26 +31,14 @@ namespace backend.Controllers
 
         [HttpPost("invite_request_by_id")]
         public async Task<IActionResult> InviteRequest(string userId) =>
-            GetActionResult(await _inviteService.InviteRequestById(User, userId));
+            await _inviteService.InviteRequestById(User, userId);
 
         [HttpPost("invite_request_by_email")]
         public async Task<IActionResult> InviteRequestByEmail(string friendEmail) =>
-            GetActionResult(await _inviteService.InviteRequestByEmail(User, friendEmail));
+            await _inviteService.InviteRequestByEmail(User, friendEmail);
 
         [HttpPost("confirm_invite")]
         public async Task<IActionResult> ConfirmInvite(string inviteId, Decide decide) =>
-            GetActionResult(await _inviteService.ConfirmInvite(User, inviteId, decide));
-
-        private IActionResult GetActionResult(backend.Managers.ActionInviteResult actionResult)
-        {
-            if (actionResult._actionStatus == ActionStatus.Success)
-            {
-                return Ok(actionResult.actionMessage);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+            await _inviteService.ConfirmInvite(User, inviteId, decide);
     }
 }

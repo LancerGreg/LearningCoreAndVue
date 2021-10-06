@@ -24,26 +24,10 @@ namespace backend.Controllers
 
         [HttpGet("user_credentiails")]
         public async Task<IActionResult> GetUserCredentilas() =>
-            User.Identity.IsAuthenticated ? new JsonResult(await _accountService.GetUserCredentilas(User)) : BadRequest(new Error() { Code = "NotAuthenticated", Description = "User is not authenticated" });
+            User.Identity.IsAuthenticated ? new JsonResult(await _accountService.GetUserCredentilas(User)) : BadRequest(new { Code = "NotAuthenticated", Description = "User is not authenticated" });
 
         [HttpPost("update_user")]
         public async Task<IActionResult> UpdateUser([FromBody]UserProfile userProfile) =>
-            GetActionResult(await _accountService.UpdateUser(User, userProfile));
-
-        private IActionResult GetActionResult(backend.Managers.ActionAccountResult actionResult)
-        {
-            if (actionResult._actionStatus == ActionStatus.Success)
-            {
-                return actionResult.message != "" ? Ok(actionResult.message) : Ok(ActionStatus.Success.ToString());
-            }
-            else
-            {
-                if (actionResult._identityResult != null)
-                {
-                    return BadRequest(actionResult.GetErrorList(actionResult._identityResult));
-                }
-                return BadRequest();
-            }
-        }
+            await _accountService.UpdateUser(User, userProfile);
     }
 }

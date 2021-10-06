@@ -24,7 +24,7 @@ namespace backend.Controllers
 
         [HttpPost("sign_in")]
         public async Task<IActionResult> SignIn([FromBody] SignInUser modelUser) =>
-            GetActionResult(await _authService.SignIn(ModelState.IsValid, modelUser));
+            await _authService.SignIn(ModelState.IsValid, modelUser);
 
         [HttpGet("user_is_authorized")]
         public JsonResult UserIsAuthorized() =>
@@ -32,50 +32,30 @@ namespace backend.Controllers
 
         [HttpPost("sign_up")]
         public async Task<IActionResult> SignUp([FromBody] SignUpUser modelUser) =>
-            GetActionResult(await _authService.SignUp(ModelState.IsValid, modelUser));
+            await _authService.SignUp(ModelState.IsValid, modelUser);
 
         [HttpPost("confirm_email")]
         public async Task<IActionResult> ConfirmEmail(string email, string token) =>
-            GetActionResult(await _authService.ConfirmEmail(email, token));
+            await _authService.ConfirmEmail(email, token);
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout() =>
-            GetActionResult(await _authService.Logout());
+            await _authService.Logout();
 
         [HttpPost("forgot_password_request")]
         public async Task<IActionResult> ResetPasswordRequest(string email) =>
-            GetActionResult(await _authService.ResetPasswordRequest(email));
+            await _authService.ResetPasswordRequest(email);
 
         [HttpPost("confirm_reset_password")]
         public async Task<IActionResult> ConfirmResetPassword(string email, string passwrod, string token) =>
-            GetActionResult(await _authService.ResetPassword(email, passwrod, token));
+            await _authService.ResetPassword(email, passwrod, token);
 
         [HttpPost("reset_number_phone")]
         public async Task<IActionResult> ResetNumberPhone(string NumberPhone) =>
-            GetActionResult(await _authService.ResetNumberPhone(User, NumberPhone));
+            await _authService.ResetNumberPhone(User, NumberPhone);
 
         [HttpPost("confirm_reset_number_phone")]
         public async Task<IActionResult> ConfirmResetNumberPhone(string token) =>
-            GetActionResult(await _authService.ConfirmResetNumberPhone(User, token));
-
-        private IActionResult GetActionResult(backend.Managers.ActionAuthResult actionResult)
-        {
-            if (actionResult._actionStatus == ActionStatus.Success)
-            {
-                return Ok(ActionStatus.Success.ToString());
-            }
-            else
-            {
-                if (actionResult._identityResult != null)
-                {
-                    return BadRequest(actionResult.GetErrorList(actionResult._identityResult));
-                }
-                if (actionResult._signInResult != null)
-                {
-                    return BadRequest(actionResult.GetErrorList(actionResult._signInResult));
-                }
-                return BadRequest();
-            }
-        }
+            await _authService.ConfirmResetNumberPhone(User, token);
     }
 }

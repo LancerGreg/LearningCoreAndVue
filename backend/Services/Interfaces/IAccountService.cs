@@ -1,6 +1,8 @@
 ﻿using backend.Managers;
+using backend.Managers.ActionResult;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,6 @@ namespace backend.Services.Interfaces
     {
         AppUser GetUser(string id);
         Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user);
-        Task<ActionAccountResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile);
+        Task<IActionResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile);
     }
 }

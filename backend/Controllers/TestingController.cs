@@ -22,22 +22,10 @@ namespace backend.Controllers
 
         [HttpPost("create_test_users")]
         public async Task<IActionResult> CreateTestUsers(int count) =>
-            GetActionResult(await _testingService.CreateTestUsers(count));
+            await _testingService.CreateTestUsers(count);
 
         [HttpPost("create_test_friendships")]
         public async Task<IActionResult> CreateTestFriendships(int from, int? countUsers) =>
-            GetActionResult(await _testingService.CreateTestFriendships(from, countUsers));
-
-        private IActionResult GetActionResult(backend.Managers.TestingResult actionResult)
-        {
-            if (actionResult._actionStatus == ActionStatus.Success)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+            await _testingService.CreateTestFriendships(from, countUsers);
     }
 }

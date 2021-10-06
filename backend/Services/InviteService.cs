@@ -1,8 +1,11 @@
 ﻿using backend.Managers;
+using backend.Managers.ActionResult;
+using backend.Managers.ActionResult.Responses;
 using backend.Models;
 using backend.Repositories;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -36,7 +39,7 @@ namespace backend.Services
 
         public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).Count();
 
-        public async Task<ActionInviteResult> InviteRequestById(ClaimsPrincipal curentUser, string userId)
+        public async Task<IActionResult> InviteRequestById(ClaimsPrincipal curentUser, string userId)
         {
             var newInvite = new Invite()
             {
@@ -50,9 +53,9 @@ namespace backend.Services
             dbContext.Invites.Add(newInvite);
             dbContext.SaveChanges();
 
-            return new ActionInviteResult(ActionStatus.Success, "Friendship request is sent");
+            return new ActionAuthResult(ActionStatus.Success, InviteResponse.Success("Friendship request is sent")).GetActionResult();
         }
-        public async Task<ActionInviteResult> InviteRequestByEmail(ClaimsPrincipal curentUser, string friendEmail)
+        public async Task<IActionResult> InviteRequestByEmail(ClaimsPrincipal curentUser, string friendEmail)
         {
             var newInvite = new Invite()
             {
@@ -66,10 +69,10 @@ namespace backend.Services
             dbContext.Invites.Add(newInvite);
             dbContext.SaveChanges();
 
-            return new ActionInviteResult(ActionStatus.Success, "Friendship request is sent");
+            return new ActionAuthResult(ActionStatus.Success, InviteResponse.Success("Friendship request is sent")).GetActionResult();
         }
 
-        public async Task<ActionInviteResult> ConfirmInvite(ClaimsPrincipal curentUser, string inviteId, Decide decide)
+        public async Task<IActionResult> ConfirmInvite(ClaimsPrincipal curentUser, string inviteId, Decide decide)
         {
             var invite = await dbContext.Invites.FirstOrDefaultAsync(_ => _.Id == new Guid(inviteId));
             invite.Decide = decide;
@@ -87,7 +90,7 @@ namespace backend.Services
 
             dbContext.SaveChanges();
 
-            return new ActionInviteResult(ActionStatus.Success, decide == Decide.Accept ? "Friendship request is accept" : "Friendship request is denie");
+            return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success(decide == Decide.Accept ? "Friendship request is accept" : "Friendship request is denie")).GetActionResult();
         }
     }
 }

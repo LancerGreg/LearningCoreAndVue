@@ -1,8 +1,11 @@
 ﻿using backend.Managers;
+using backend.Managers.ActionResult;
+using backend.Managers.ActionResult.Responses;
 using backend.Models;
 using backend.Repositories;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,16 +35,16 @@ namespace backend.Services
             _friendService = friendService;
         }
 
-        public async Task<TestingResult> CreateTestUsers(int count)
+        public async Task<IActionResult> CreateTestUsers(int count)
         {
             var index = dbContext.Users.AsEnumerable().Where(_ => _.Email.Contains("test")).Max(_ => Int32.Parse(Regex.Match(_.Email, @"\d+").Value)) + 1;
             for (int i = 0; i < count; i++)
                 await _userManager.CreateAsync(new AppUser() { Email = "test" + (index + i) + "@test.com", EmailConfirmed = true, FirstName = "test" + (index + i) + "@test.com", UserName = "test" + (index + i) + "@test.com" }, "1q2w3e$R5t");
 
-            return new TestingResult(ActionStatus.Success);
+            return new ActionAuthResult(ActionStatus.Success, TestingResponse.Success()).GetActionResult();
         }
 
-        public async Task<TestingResult> CreateTestFriendships(int from, int? countUsers)
+        public async Task<IActionResult> CreateTestFriendships(int from, int? countUsers)
         {
             var random = new Random();
             var usersId = dbContext.Users.AsEnumerable().Where(_ => _.Email.Contains("test") && Int32.Parse(Regex.Match(_.Email, @"\d+").Value) > from).Select(_ => _.Id);
@@ -54,7 +57,7 @@ namespace backend.Services
                 await AddFriendship(usersId, id, random);
             }
 
-            return new TestingResult(ActionStatus.Success);
+            return new ActionAuthResult(ActionStatus.Success, TestingResponse.Success()).GetActionResult();
         }
 
         private async Task AddFriendship(IEnumerable<string> usersId, string id, Random random)

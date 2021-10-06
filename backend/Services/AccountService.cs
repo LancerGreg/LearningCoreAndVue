@@ -18,6 +18,9 @@ using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Web;
 using backend.Services.Interfaces;
+using backend.Managers.ActionResult;
+using Microsoft.AspNetCore.Mvc;
+using backend.Managers.ActionResult.Responses;
 
 namespace backend.Services
 {
@@ -38,7 +41,7 @@ namespace backend.Services
 
         public async Task<UserProfile> GetUserCredentilas(ClaimsPrincipal user) => new UserProfile(await _userManager.GetUserAsync(user));
 
-        public async Task<ActionAccountResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile)
+        public async Task<IActionResult> UpdateUser(ClaimsPrincipal claimsPrincipal, UserProfile userProfile)
         {
             var message = "";
             var user = await _userManager.GetUserAsync(claimsPrincipal);
@@ -72,16 +75,16 @@ namespace backend.Services
                 {
                     user.PasswordHash = _passwordHasher.HashPassword(user, userProfile.Password);
                     await _userManager.UpdateAsync(user);
-                    return new ActionAccountResult(ActionStatus.Success, result, message);
+                    return new ActionAccountResult(ActionStatus.Success, AccountResponse.Success(message)).GetActionResult();
                 }
                 else
                 {
-                    return new ActionAccountResult(ActionStatus.Error, result);
+                    return new ActionIdentityResult(ActionStatus.Error, IdentityResponse.IdentityError(result)).GetActionResult();
                 }
             }
 
             await _userManager.UpdateAsync(user);
-            return new ActionAccountResult(ActionStatus.Success, message);
+            return new ActionAuthResult(ActionStatus.Error, AccountResponse.Error()).GetActionResult();
         }
     }
 }
