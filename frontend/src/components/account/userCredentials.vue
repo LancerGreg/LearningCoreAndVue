@@ -7,9 +7,9 @@
           <v-dialog v-model="dialogConfirmToken" max-width="500px">
             <v-card>
               <v-card-title>
-                <span class="text-h5">To verify your phone number, enter the verification code that was sent to this number.</span>
+                <span class="v-verification-text text-h5">To verify your phone number, enter the verification code that was sent to this number.</span>
               </v-card-title>
-              <v-text-field color="white" label="Verify change phone number code" v-model="token"></v-text-field>
+              <v-text-field class="pl-24 pr-24" color="white" label="Verify change phone number code" v-model="token"></v-text-field>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="confirmToken">
@@ -54,12 +54,14 @@
         </v-snackbar>
       </v-card>
     </v-container>
+    <ResponseDialog ref="responseDialog"/>
   </div>
 </template>
 
 <script>
 import store from "../../store"
 import axios from 'axios'
+import ResponseDialog from "../responseDialog/responseDialog.vue"
 
 export default {
   data: () => {
@@ -86,41 +88,41 @@ export default {
         Password: this.userProfile.Password
       })
       .then(response => {
-        if (response.data === "ResetNumberPhoneTokenSend") {
+        if (response.data.Message === "ResetNumberPhoneTokenSend") {
           this.dialogConfirmToken = true
-        } else if (response.data.includes("ErrorOnSendMessage")) {
-          alert("Error\n" + response.data)
         } else {
           this.isEditing = !this.isEditing
           this.hasSaved = true
         }
       }).catch(error => {
-        error.response.data.forEach(element => {
-          alert(element.Code + "\n" + element.Description)
-        });
+        this.$refs.responseDialog.showErrorResponse(error)
       });
     },
     async confirmToken() {
       axios.post(store.getters.URLS.API_URL + "auth/confirm_reset_number_phone?token=" + this.token)
-      .then(response => {
-        debugger;
-        response;
+      .then(() => {
         this.dialogConfirmToken = false
         this.isEditing = !this.isEditing
         this.hasSaved = true
-      }).catch(() => {
-        alert("Error\nYou enter not right verify code")
+      }).catch(error => {
+        this.$refs.responseDialog.showErrorResponse(error)
       });
     }
   },
   mounted() {
     store.dispatch('SET_USERPROFILE');
   },
+  components: {
+    ResponseDialog
+  }
 }
 </script>
 
 <style scoped>
   h2 {
     margin-bottom: 20px;
+  }
+  .v-verification-text {
+    word-break: break-word;
   }
 </style>

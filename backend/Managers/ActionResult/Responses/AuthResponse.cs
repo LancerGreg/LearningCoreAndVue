@@ -11,6 +11,7 @@ namespace backend.Managers.ActionResult.Responses
         public static Response UserNotFound() => new Response() { Code = nameof(UserNotFound), StatusCode = 404, Description = "User is not found" };
         public static Response NotImplemented() => new Response() { Code = nameof(NotImplemented), StatusCode = 501, Description = "The server does not support the functionality required to process the request" };
         public static Response BadRequest() => new Response() { Code = nameof(BadRequest), StatusCode = 400, Description = "The request is not understood by the server due to an incorrect syntax" };
+        public static Response NotCorrectPasswrod() => new Response() { Code = nameof(NotCorrectPasswrod), StatusCode = 400, Description = "Your password and confirmation password do not match" };
     }
 
     public class SignInResponse : AuthResponse

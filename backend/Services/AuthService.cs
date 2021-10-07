@@ -117,6 +117,9 @@ namespace backend.Services
         {
             if (isValid)
             {
+                if (modelUser.Password != modelUser.PasswordConfirm)
+                    return new ActionAuthResult(ActionStatus.Error, AuthResponse.NotCorrectPasswrod()).GetActionResult();
+
                 AppUser user = new AppUser { Email = modelUser.Email, UserName = modelUser.Email, FirstName = "", LastName = "", PhoneNumber = "" };
                 var result = await _userManager.CreateAsync(user, modelUser.Password);
                 if (result.Succeeded)
@@ -177,7 +180,7 @@ namespace backend.Services
             }
             else
             {
-                return new ActionAuthResult(ActionStatus.Error, AuthResponse.Error()).GetActionResult();
+                return new ActionAuthResult(ActionStatus.Error, AuthResponse.BadRequest()).GetActionResult();
             }
         }
     }

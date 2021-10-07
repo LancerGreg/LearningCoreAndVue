@@ -25,10 +25,11 @@
               type="password"
               required></v-text-field>
           </v-flex>
-          <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>            
+          <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
             <Loader v-if="loader" :loaderPerams="loaderPerams" />
             <v-btn v-else color="primary" @click="reserPassword">save</v-btn>
           </v-flex>
+          <ResponseDialog ref="responseDialog"/>
         </v-layout>
       </form>
     </v-flex>
@@ -41,6 +42,7 @@ import router from '../../router'
 import store from '../../store'
 import axios from 'axios'
 import Loader from "../loader/loader.vue"
+import ResponseDialog from "../responseDialog/responseDialog.vue"
 
 export default {
   data: () => {
@@ -83,19 +85,17 @@ export default {
             store.getters.USERISAUTHORITED;
             router.push({ name: "Account"})
           }).catch(error => {
-            error.response.data.forEach(element => {
-              alert(element.Code + "\n" + element.Description)
-            });
+            this.$refs.responseDialog.showErrorResponse(error)
           })
         }).catch(error => {
-          console.log(error);
-          alert("ERROR\nEmail not found or not confirmed")
+          this.$refs.responseDialog.showErrorResponse(error)
         }).finally(() => this.loader = false);
       }
-    }
+    },
   },
   components: {
-    Loader
+    Loader,
+    ResponseDialog
   }
 }
 </script>

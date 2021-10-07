@@ -58,9 +58,8 @@ namespace backend.Services
                 }
                 catch (Exception e)
                 {
-                    message = "ErrorOnSendMessage\n" + e.Message;
-                }
-               
+                    return new ActionAuthResult(ActionStatus.Error, AccountResponse.UnsucceededPhone(e.Message)).GetActionResult();
+                }               
             }
             user.PhoneNumber = userProfile.Phone;
 
@@ -84,7 +83,7 @@ namespace backend.Services
             }
 
             await _userManager.UpdateAsync(user);
-            return new ActionAuthResult(ActionStatus.Error, AccountResponse.Error()).GetActionResult();
+            return new ActionAuthResult(ActionStatus.Success, AccountResponse.Success(message)).GetActionResult();
         }
     }
 }

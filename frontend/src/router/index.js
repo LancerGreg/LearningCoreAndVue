@@ -7,6 +7,8 @@ import ConfirmResetPassword from '../components/account/confirmResetPassword.vue
 import AddNewFriend from '../components/friendship/addNewFriend.vue'
 import FriendessTree from '../components/friendship/friendessTree.vue'
 import InviteOfFreindship from '../components/friendship/inviteOfFreindship.vue'
+import Error500 from '../views/Error500.vue'
+import Error404 from '../views/Error404.vue'
 
 Vue.use(VueRouter)
 
@@ -46,6 +48,20 @@ const routes = [
     name: 'Invite_of_freindship',
     component: InviteOfFreindship
   },
+  {
+    path: '/error/500',
+    name: 'Error_500',
+    component: Error500
+  },
+  { 
+    path: '*', 
+    beforeEnter: (to, from, next) => { next('/error/404') } 
+  },
+  {
+    path: '/error/404',
+    name: 'Error_404',
+    component: Error404
+  }
 ]
 
 const router = new VueRouter({

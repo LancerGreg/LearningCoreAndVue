@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import router from "../../../router"
 import store from '../../../store'
 import axios from 'axios'
 
@@ -186,7 +187,7 @@ export default {
             .then((response) => {
               users = response.data
             }).catch(() => {
-              alert("Error 500\n Serve not working")
+              router.push({ name: "Error_500"})
               return []
             });
             return users;
@@ -224,7 +225,7 @@ export default {
               });
             }).catch(() => {
               this.closeDenie()
-              alert("Error 500\n Serve not working")
+              router.push({ name: "Error_500"})
             });
         }
     }

@@ -50,6 +50,7 @@
 </template>
 
 <script>
+import router from "../../../router"
 import store from "../../../store"
 import axios from 'axios'
 import Loader from '../../loader/loader.vue'
@@ -106,7 +107,7 @@ import Loader from '../../loader/loader.vue'
         .then((response) => {          
           this.invites = response.data
         }).catch(() => {
-          alert("Error 500\n Serve not working")
+              router.push({ name: "Error_500"})
         });
         this.loader = false
       },
@@ -117,7 +118,7 @@ import Loader from '../../loader/loader.vue'
           this.editedIndex = this.invites.indexOf(item)
           this.dialogAccept = true        
         }).catch(() => {
-          alert("Error 500\n Serve not working")
+          router.push({ name: "Error_500"})
         });
       },
 
@@ -133,7 +134,7 @@ import Loader from '../../loader/loader.vue'
           this.closeDenie()
         }).catch(() => {
           this.closeDenie()
-          alert("Error 500\n Serve not working")
+          router.push({ name: "Error_500"})
         });
       },
 

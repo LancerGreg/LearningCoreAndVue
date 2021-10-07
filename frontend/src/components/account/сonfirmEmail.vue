@@ -1,6 +1,6 @@
 <template>
 <div class="loader">
-   <Loader :loaderPerams="loaderPerams" />
+  <Loader :loaderPerams="loaderPerams" />
 </div>
 </template>
 
@@ -27,19 +27,11 @@ export default {
       let email = params.get("email");
       let token = params.get("token");
       if (email === null || email === "" || token === null || token === "") {
-        alert("ERROR\nBad request")
         router.push({ name: "Account"})
       } else {
         axios.post(store.getters.URLS.API_URL + "auth/confirm_email?email=" + email + "&token=" + token).then(() => {
-        router.push({ name: "Account"})
-        }).catch(error => {
-          try {
-            error.response.data.forEach(element => {
-              alert(element.Code + "\n" + element.Description)
-            });
-          } catch {
-            alert("ERROR\nBad request")
-          }
+          router.push({ name: "Account"})
+        }).catch(() => {
           router.push({ name: "Account"})
         });
       }
@@ -49,7 +41,7 @@ export default {
      this.confirmEmail()
   },
   components: {
-    Loader
+    Loader,
   }
 }
 </script>

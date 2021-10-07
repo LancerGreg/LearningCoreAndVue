@@ -148,6 +148,7 @@
 </template>
 
 <script>
+import router from "../../router"
 import store from "../../store"
 import axios from 'axios'
 import Loader from "../loader/loader.vue"
@@ -229,7 +230,7 @@ export default {
         return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
       });
     }).catch(() => {
-      alert("Error 500\n Serve not working")
+      router.push({ name: "Error_500"})
     }).finally(() => this.loader = false);
   },
   methods: {
@@ -295,7 +296,7 @@ export default {
         })
       }).catch(() => {
         this.closeDenie()
-        alert("Error 500\n Serve not working")
+      router.push({ name: "Error_500"})
       });
     },
     async filterFriends(){
@@ -310,7 +311,7 @@ export default {
           return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
         });
       }).catch(() => {
-        alert("Error 500\n Serve not working")
+        router.push({ name: "Error_500"})
       }).finally(() => this.loader = false);
     },
     pinAllNodes () {
@@ -350,7 +351,7 @@ export default {
 
 <style src="vue-d3-network/dist/vue-d3-network.css"></style>
 
-<style scoped>  
+<style scoped>
   .loader {
     position: absolute;
     left: calc(50vw - 50px);

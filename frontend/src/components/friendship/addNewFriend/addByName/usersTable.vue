@@ -1,64 +1,65 @@
 <template>
-    <v-data-table :headers="headers" :items="users" :loading="loading" class="elevation-1">
-      <template v-slot:top> 
-        <v-toolbar flat>
-          <v-toolbar-title>{{ match }}</v-toolbar-title>
-          <v-divider class="mx-4" inset vertical></v-divider>
-          <v-spacer></v-spacer>
-          <v-dialog v-model="dialogFriendship" max-width="600px">
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ dialogFriendshipTitle }}</span>
-              </v-card-title>  
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDialogFriendship">
-                  OK
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogWait" max-width="600px">
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ dialogWaitTitle }}</span>
-              </v-card-title>  
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDialogWait">
-                  OK
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogInvite" max-width="600px">
-            <v-card>
-              <v-card-title class="text-h5">Are you sure you want to send friendship invite?</v-card-title>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDialogInvite">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="sendInvite">Yes</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-icon v-if="!item.IsFriend && !item.HaveInvite" style="background:orange;" class="v-icon-action" color="white" large @click="showInvite(item)">
-          send
-        </v-icon>
-        <v-icon v-if="!item.IsFriend && item.HaveInvite" title="the request is pending " style="background:blue;" class="v-icon-action" color="white" large @click="showDialogWait()">
-          done
-        </v-icon>
-        <v-icon v-if="item.IsFriend" title="they are your friend" style="background:green;" class="v-icon-action" color="white" large @click="showDialogFriendship()">
-          done_all
-        </v-icon>
-      </template>
-    </v-data-table>
+  <v-data-table :headers="headers" :items="users" :loading="loading" class="elevation-1">
+    <template v-slot:top> 
+      <v-toolbar flat>
+        <v-toolbar-title>{{ match }}</v-toolbar-title>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-spacer></v-spacer>
+        <v-dialog v-model="dialogFriendship" max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">{{ dialogFriendshipTitle }}</span>
+            </v-card-title>  
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDialogFriendship">
+                OK
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogWait" max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">{{ dialogWaitTitle }}</span>
+            </v-card-title>  
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDialogWait">
+                OK
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogInvite" max-width="600px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to send friendship invite?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDialogInvite">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="sendInvite">Yes</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:[`item.actions`]="{ item }">
+      <v-icon v-if="!item.IsFriend && !item.HaveInvite" style="background:orange;" class="v-icon-action" color="white" large @click="showInvite(item)">
+        send
+      </v-icon>
+      <v-icon v-if="!item.IsFriend && item.HaveInvite" title="the request is pending " style="background:blue;" class="v-icon-action" color="white" large @click="showDialogWait()">
+        done
+      </v-icon>
+      <v-icon v-if="item.IsFriend" title="they are your friend" style="background:green;" class="v-icon-action" color="white" large @click="showDialogFriendship()">
+        done_all
+      </v-icon>
+    </template>
+  </v-data-table>
 </template>
 
 <script>
+import router from "../../../../router"
 import store from '../../../../store'
 import axios from 'axios'
 
@@ -192,7 +193,7 @@ export default {
                 users = response.data.Item2
               }
             }).catch(() => {
-              alert("Error 500\n Serve not working")
+              router.push({ name: "Error_500"})
               return []
             });
             return users;
@@ -230,7 +231,7 @@ export default {
               });
             }).catch(() => {
               this.closeDenie()
-              alert("Error 500\n Serve not working")
+              router.push({ name: "Error_500"})
             });
         }
     }

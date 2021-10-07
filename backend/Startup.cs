@@ -43,6 +43,7 @@ namespace backend
             services.AddTransient<IFriendService, FriendService>();
             services.AddTransient<IInviteService, InviteService>();
             services.AddTransient<ITestingService, TestingService>();
+            services.AddTransient<IErrorHelper, ErrorHelper>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

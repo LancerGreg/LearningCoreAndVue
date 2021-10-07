@@ -31,6 +31,7 @@
             <OnForggotPassword />
             <OnSignUp />
           </v-flex>
+          <ResponseDialog ref="responseDialog"/>
         </v-layout>
       </form>
     </v-flex>
@@ -44,6 +45,7 @@ import axios from 'axios'
 import OnForggotPassword from '../account/buttons/onForggotPassword.vue'
 import OnSignUp from '../account/buttons/onSignUp.vue'
 import Loader from "../loader/loader.vue"
+import ResponseDialog from "../responseDialog/responseDialog.vue"
 
 export default {
   data: () => {
@@ -69,21 +71,19 @@ export default {
         RememberMe: false,
         ReturnUrl: ""
       })
-      .then((response) => {
-        response;
+      .then(() => {
         store.dispatch('SET_USERISAUTHORITED');
         store.getters.USERISAUTHORITED;
       }).catch(error => {
-        error.response.data.forEach(element => {
-          alert(element.Code + "\n" + element.Description)
-        });        
+        this.$refs.responseDialog.showErrorResponse(error)
       }).finally(() => this.loader = false);
     }
   },
   components: {
     OnForggotPassword,
     OnSignUp,
-    Loader
+    Loader,
+    ResponseDialog
   }
 }
 </script>
