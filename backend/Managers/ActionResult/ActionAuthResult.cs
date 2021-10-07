@@ -39,8 +39,8 @@ namespace backend.Managers.ActionResult
         private Response GetSignInResponse()
         {
             if (_signInResult.IsLockedOut) return SignInResponse.IsLockedOut();
-            else if (_signInResult.IsNotAllowed) return SignInResponse.IsLockedOut();
-            else if (_signInResult.RequiresTwoFactor) return SignInResponse.IsLockedOut();
+            else if (_signInResult.IsNotAllowed) return SignInResponse.IsNotAllowed();
+            else if (_signInResult.RequiresTwoFactor) return SignInResponse.RequiresTwoFactor();
             else return SignInResponse.FailUserCredentials();
         }
     }
