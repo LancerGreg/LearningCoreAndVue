@@ -57,6 +57,10 @@ namespace backend
                 opt.Password.RequiredLength = 8;
                 opt.User.RequireUniqueEmail = true;
                 opt.SignIn.RequireConfirmedEmail = true;
+
+                opt.Lockout.AllowedForNewUsers = true;
+                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(60);
+                opt.Lockout.MaxFailedAccessAttempts = 3;
             })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
