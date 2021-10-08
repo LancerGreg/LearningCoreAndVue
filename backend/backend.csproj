@@ -27,4 +27,8 @@
     <PackageReference Include="Two.AspNetCore.SpaServices.StaticFiles" Version="0.9.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace backend.Helpers
+namespace backend.Middlewares
 {
     public class JwtMiddleware
     {

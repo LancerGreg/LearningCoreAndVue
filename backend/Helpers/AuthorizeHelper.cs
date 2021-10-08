@@ -12,12 +12,12 @@ using backend.Helpers.Interfaces;
 
 namespace backend.Helpers
 {
-    public class AuthorizeAttribute : AppDbRepository, IAuthorizeAttribute
+    public class AuthorizeHelper : AppDbRepository, IAuthorizeHelper
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor context;
 
-        public AuthorizeAttribute(AppDbContext dbContext, IConfiguration configuration, IHttpContextAccessor context) : base(dbContext)
+        public AuthorizeHelper(AppDbContext dbContext, IConfiguration configuration, IHttpContextAccessor context) : base(dbContext)
         {
             _configuration = configuration;
             this.context = context;

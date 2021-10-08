@@ -26,10 +26,10 @@ namespace backend.Services
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IAuthorizeAttribute _authorize;
+        private readonly IAuthorizeHelper _authorize;
         private readonly ISMTP smtp;
 
-        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeAttribute authorize, ISMTP smtp) : base(dbContext)
+        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeHelper authorize, ISMTP smtp) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;

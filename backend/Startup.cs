@@ -22,6 +22,10 @@ using backend.Helpers.Interfaces;
 using backend.Services.Interfaces;
 using Twilio;
 using backend.Managers;
+using backend.Middlewares;
+using backend.Middlewares.Log;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace backend
 {
@@ -39,7 +43,7 @@ namespace backend
             services.AddTransient<ISMTP, SMTP>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IAccountService, AccountService>();
-            services.AddTransient<IAuthorizeAttribute, AuthorizeAttribute>();
+            services.AddTransient<IAuthorizeHelper, AuthorizeHelper>();
             services.AddTransient<IFriendService, FriendService>();
             services.AddTransient<IInviteService, InviteService>();
             services.AddTransient<ITestingService, TestingService>();
@@ -121,7 +125,14 @@ namespace backend
             app.UseMvc();
 
             app.UseMiddleware<JwtMiddleware>();
+            app.UseLogUrl();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images")),
+                RequestPath = "/images"
+            });
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

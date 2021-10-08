@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace backend.Helpers.Interfaces
 {
-    public interface IAuthorizeAttribute
+    public interface IAuthorizeHelper
     {
         bool OnAuthorization();
         void Authorization(string email);
