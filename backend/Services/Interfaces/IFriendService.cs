@@ -17,5 +17,6 @@ namespace backend.Services.Interfaces
         Task<IEnumerable<FoundedUser>> GetUserByPhone(ClaimsPrincipal curentUser, string userPhone);
         Task<(IEnumerable<FoundedUser> bestMatch, IEnumerable<FoundedUser> otherMatch)> GetUsersByName(ClaimsPrincipal curentUser, string firstName, string lastName);
         Task<object> GetGraphData(ClaimsPrincipal curentUser, int range, bool simplifiedLink);
+        Task<object> GetGraphData(ClaimsPrincipal curentUser, int range, bool simplifiedLink, string friendId);
     }
 }

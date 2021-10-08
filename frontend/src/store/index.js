@@ -18,6 +18,7 @@ const store = new Vuex.Store({
     },
     userIsAuthorized: false,
     userProfile: {
+      Id: "",
       FirstName: "",
       LastName: "",
       Phone: "",

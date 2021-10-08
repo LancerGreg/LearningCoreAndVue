@@ -49,5 +49,9 @@ namespace backend.Controllers
         [HttpGet("get_graph_data")]
         public async Task<JsonResult> GetGraphData(int range, bool simplifiedLink) =>
             new JsonResult(await _friendService.GetGraphData(User, range, simplifiedLink));
+
+        [HttpGet("get_graph_data_friend")]
+        public async Task<JsonResult> GetGraphData(int range, bool simplifiedLink, string friendId) =>
+            new JsonResult(await _friendService.GetGraphData(User, range, simplifiedLink, friendId));
     }
 }

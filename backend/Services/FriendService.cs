@@ -71,6 +71,17 @@ namespace backend.Services
         public async Task<object> GetGraphData(ClaimsPrincipal curentUser, int range, bool simplifiedLink)
         {
             var user = await _userManager.GetUserAsync(curentUser);
+            return GraphData(user, user, range, simplifiedLink);
+        }
+
+        public async Task<object> GetGraphData(ClaimsPrincipal curentUser, int range, bool simplifiedLink, string friendId)
+        {
+            var user = await dbContext.Users.FirstOrDefaultAsync(_ => _.Id == friendId);
+            return GraphData(user, await _userManager.GetUserAsync(curentUser), range, simplifiedLink);
+        }
+
+        private object GraphData(AppUser user, AppUser curentUser, int range, bool simplifiedLink)
+        {
             var users = new List<AppUser>() { user };
             var friendships = new List<Friendship>();
             friendships.AddRange(dbContext.Friendships.Where(_ => _.AppUserId == user.Id));
@@ -80,7 +91,7 @@ namespace backend.Services
                 {
                     friendships.AddRange(dbContext.Friendships.AsEnumerable().Where(_ => users.Any(u => u.Id == _.AppUserId) && !friendships.Any(f => f.Id == _.Id)));
                     users.AddRange(dbContext.Users.AsEnumerable().Where(_ => !users.Any(u => u.Id == _.Id) && friendships.Any(f => f.FriendId == _.Id)));
-                } 
+                }
                 else
                 {
                     users.AddRange(dbContext.Users.AsEnumerable().Where(_ => !users.Any(u => u.Id == _.Id) && friendships.Any(f => f.FriendId == _.Id)));
@@ -88,9 +99,9 @@ namespace backend.Services
                 }
             }
 
-            return 
+            return
             (
-                users.Select(_ => new { Id = _.Id, FullName = _.FirstName + " " + _.LastName, IsFriend = friendships.Any(fs => (fs.AppUserId == user.Id && fs.FriendId == _.Id) || (fs.AppUserId == _.Id && fs.FriendId == user.Id)), HaveInvite = dbContext.Invites.Any(i => (i.SenderId == user.Id && i.RecipientId == _.Id) || (i.SenderId == _.Id && i.RecipientId == user.Id)) }), 
+                users.Select(_ => new { Id = _.Id, FullName = _.FirstName + " " + _.LastName, IsFriend = friendships.Any(fs => (fs.AppUserId == curentUser.Id && fs.FriendId == _.Id) || (fs.AppUserId == _.Id && fs.FriendId == curentUser.Id)), HaveInvite = dbContext.Invites.Any(i => (i.SenderId == curentUser.Id && i.RecipientId == _.Id) || (i.SenderId == _.Id && i.RecipientId == curentUser.Id)) }),
                 friendships.Where(_ => users.Any(u => u.Id == _.AppUserId) && users.Any(u => u.Id == _.FriendId)).Select(_ => new { Id = _.Id, FirstUserId = _.AppUserId, SecondUserId = _.FriendId })
             );
         }

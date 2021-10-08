@@ -7,6 +7,7 @@ namespace backend.Models
 {
     public class UserProfile
     {
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Phone { get; set; }
@@ -16,6 +17,7 @@ namespace backend.Models
         public UserProfile() { }
         public UserProfile(AppUser user) 
         {
+            Id = user.Id != null ? user.Id : "";
             FirstName = user.FirstName != null ? user.FirstName : "";
             LastName = user.LastName != null ? user.LastName : "";
             Phone = user.PhoneNumber != null && user.PhoneNumberConfirmed ? user.PhoneNumber : "";

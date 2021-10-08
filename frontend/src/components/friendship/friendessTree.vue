@@ -63,7 +63,7 @@
         </v-row>
         <v-divider></v-divider>
         <v-list>
-          <v-list-item>
+          <v-list-item class="v-list-item-request">
             <v-list-item-content>
               <v-list-item-title class="text-white-space-break-spaces">Friends Filter</v-list-item-title>
               <v-list-item-subtitle class="text-white-space-break-spaces">To order by, define the indicators and click "Request"</v-list-item-subtitle>
@@ -78,6 +78,9 @@
         <v-row>
           <v-col class="pr-4">
             <v-checkbox v-model="menuOptions.simplifiedLink" label="Simplified link" color="success"></v-checkbox>
+          </v-col>
+          <v-col class="pr-4">
+            <v-checkbox v-model="menuOptions.treeRunnerMode" label="Tree Runner Mode" color="success"></v-checkbox>
           </v-col>
         </v-row>
         <v-row>
@@ -182,6 +185,7 @@ export default {
         nodeSize: 20,
         linkWidth: 3,
         
+        treeRunnerMode: false,
         simplifiedLink: false,
         friendsRange: 1,
       },
@@ -190,6 +194,14 @@ export default {
         size: 100,
         color: "#1976d2",
         width: 10
+      },
+      userInfo: {
+          id: "",
+          nodeId: "",
+          fullName: "",
+          thisUser: false,
+          isFriend: false,
+          haveInvite: false,
       },
     }
   },
@@ -207,15 +219,8 @@ export default {
         }
       }
     },
-    userInfo(){
-      return{
-        id: "",
-        nodeId: "",
-        fullName: "",
-        thisUser: false,
-        isFriend: false,
-        haveInvite: false,
-      }
+    currentUserId () {
+      return store.getters.USERPROFILE.Id;
     },
   },
   async beforeMount() {
@@ -234,27 +239,42 @@ export default {
     }).finally(() => this.loader = false);
   },
   methods: {
-    toTarget(event, node){
+    cteateFriendTree(event, node) {
       // delay is needed in case pull by the node
       setTimeout(() => {
-        this.highlightTarget(node)
-        this.showUserInfo(node)
+        this.highlightTarget(event, node)
+        this.showUserInfo(event, node)
       }, 120);      
     },
-    highlightTarget(node) {
-      if (!this.menuOptions.pinNodes && !this.menuOptions.pinCentralNode) {
-        // the node is go to the center
+    toTarget(event, node){
+      if (this.menuOptions.treeRunnerMode) {
+        this.getFriends(event, node)
+      } else {
+        this.cteateFriendTree(event, node);
+      }
+    },
+    highlightTarget(event, node) {
+      // the node is go to the center
+      if (!this.menuOptions.pinNodes && !this.menuOptions.pinCentralNode && !this.menuOptions.treeRunnerMode) {
         this.offset.x += window.innerWidth / 2 - node.x
         this.offset.y += window.innerHeight / 2 - node.y
+      } else if (this.menuOptions.treeRunnerMode) {
+        this.offset.x = 0
+        this.offset.y = 0
       }
 
       // change all colors to default 
-      this.nodes.map(e => { e._color = "#000"; e._labelClass = ""; })
-      this.links.map(e => e._color = "rgba(145,145,145,0.25)")
+        this.nodes.map(e => { e._color = "#000"; e._labelClass = ""; })
+        this.links.map(e => e._color = "rgba(145,145,145,0.25)")
 
       // change color for selected node
-      node._color = "#ff0"
-      node._labelClass = "selected-node-title"
+      if (this.menuOptions.treeRunnerMode) {
+        this.nodes[0]._color = "#ff0"
+        this.nodes[0]._labelClass = "selected-node-title"
+      } else {
+        node._color = "#ff0"
+        node._labelClass = "selected-node-title"
+      }
 
       // change color for friends node
       this.nodes.map(n => {
@@ -267,11 +287,11 @@ export default {
         })
       })
     },
-    showUserInfo(node) {
+    showUserInfo(event, node) {
       this.displayUserInfo = true
       this.userInfo.nodeId = node.id
       this.userInfo.id = node._userInfo.userId
-      this.userInfo.thisUser = node.index == 0
+      this.userInfo.thisUser = node._userInfo.userId === this.currentUserId
       this.userInfo.fullName = node._userInfo.fullName
       this.userInfo.isFriend = node._userInfo.isFriend
       this.userInfo.haveInvite = node._userInfo.haveInvite
@@ -310,6 +330,22 @@ export default {
         this.links = response.data.Item2.map(function(friendship) {
           return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
         });
+      }).catch(() => {
+        router.push({ name: "Error_500"})
+      }).finally(() => this.loader = false);
+    },
+    async getFriends(event, node){
+      this.loader = true
+      this.menuOptions.pinNodes = false
+      await axios.get(store.getters.URLS.API_URL + "friend/get_graph_data_friend?range=" + this.menuOptions.friendsRange + "&simplifiedLink=" + this.menuOptions.simplifiedLink + "&friendId=" + node._userInfo.userId)
+      .then((response) => {
+        this.nodes = response.data.Item1.map(function(user) {
+          return { id: user.Id, name: user.FullName, _color: "#000", _labelClass: "node-label", _userInfo: { userId: user.Id, fullName: user.FullName, isFriend: user.IsFriend, haveInvite: user.HaveInvite } };
+        });
+        this.links = response.data.Item2.map(function(friendship) {
+          return { sid: friendship.FirstUserId, tid: friendship.SecondUserId, _color: "rgba(145,145,145,0.25)" };
+        });
+        this.cteateFriendTree(event, node);
       }).catch(() => {
         router.push({ name: "Error_500"})
       }).finally(() => this.loader = false);
@@ -445,6 +481,9 @@ export default {
   @media screen and (max-width: 600px) {
     .option-input {
       display: block !important;
-    }    
+    }  
+    .v-list-item-request {
+      flex-direction: column;
+    }  
   }
 </style>
