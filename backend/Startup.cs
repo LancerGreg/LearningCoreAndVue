@@ -48,6 +48,7 @@ namespace backend
             services.AddTransient<IInviteService, InviteService>();
             services.AddTransient<ITestingService, TestingService>();
             services.AddTransient<IErrorHelper, ErrorHelper>();
+            services.AddTransient<IChatService, ChatService>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
