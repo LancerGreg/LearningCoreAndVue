@@ -65,6 +65,7 @@ export default {
       menuItems: [
         { title: 'Home', path: '/', icon: 'home' },
         { title: 'Account', path: '/account', icon: 'mdi-account' },
+        { title: 'Messanger', path: '/messanger', icon: 'mdi-chat' },
       ],
       friendMenu: [
         { title: "Friendes's Tree", path: "/friendship/friendess_tree", icon: 'account_tree', porpInvite: null },

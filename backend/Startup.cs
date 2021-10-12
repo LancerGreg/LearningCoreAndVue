@@ -80,7 +80,7 @@ namespace backend
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()
-                    .WithOrigins("https://localhost:5001");
+                    .WithOrigins("https://localhost:8080");
                 });
             });
 
@@ -113,8 +113,6 @@ namespace backend
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("VueCorsPolicy");
-
             dbContext.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
@@ -127,11 +125,21 @@ namespace backend
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors(builder =>
+                builder.WithOrigins("http://localhost:8080")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+            );
+
             app.UseMvc();
 
             app.UseMiddleware<JwtMiddleware>();
             app.UseLogUrl();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => 
+            { 
+                endpoints.MapControllers();
+            });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions
             {

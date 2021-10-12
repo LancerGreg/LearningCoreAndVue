@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Account from '../views/Account.vue'
+import Messanger from '../views/Messanger.vue'
 import ConfirmEmail from '../components/account/сonfirmEmail.vue'
 import ConfirmResetPassword from '../components/account/confirmResetPassword.vue'
 import AddNewFriend from '../components/friendship/addNewFriend.vue'
@@ -32,6 +33,11 @@ const routes = [
     path: '/account/confirm_reset_password',
     name: 'ConfirmResetPassword',
     component: ConfirmResetPassword,
+  },
+  {
+    path: '/messanger',
+    name: 'Messanger',
+    component: Messanger,
   },
   {
     path: "/friendship/friendess_tree",
