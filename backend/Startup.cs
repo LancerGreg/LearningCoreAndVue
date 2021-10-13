@@ -26,6 +26,7 @@ using backend.Middlewares;
 using backend.Middlewares.Log;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using backend.Managers.SignalR;
 
 namespace backend
 {
@@ -101,6 +102,8 @@ namespace backend
             TwilioClient.Init(Configuration["Twilio:AuthToken"], Configuration["Twilio:AccountSID"]);
             services.Configure<TwilioVerifySettings>(Configuration.GetSection("Twilio"));
 
+            services.AddSignalR();
+
             services.AddSpaStaticFiles(configuration: options => { options.RootPath = "wwwroot"; });
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
@@ -139,6 +142,7 @@ namespace backend
             app.UseEndpoints(endpoints => 
             { 
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/signalr-hub");
             });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions
