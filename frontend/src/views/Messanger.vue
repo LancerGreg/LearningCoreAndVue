@@ -51,13 +51,19 @@ export default {
       .withUrl(window.location.origin + '/signalr-hub')
       .configureLogging(LogLevel.Information)
       .build();
+
       this.connection.onclose(() => {
         this.connectToSignalR();
       })
       this.connectToSignalR();
       this.connection.on('RefreshEvent', (data) => {
         this.messages.push({ text: data.value.text, date: data.value.date })
-        this.$store.getters.needReloadPage
+      })
+      this.connection.on('OnConnectedAsync', (data) => {
+        this.messages.push({ text: data, date: (new Date()).toLocaleString() })
+      })
+      this.connection.on('OnDisconnectedAsync', (data) => {
+        this.messages.push({ text: data, date: (new Date()).toLocaleString() })
       })
     },
     connectToSignalR() {
@@ -72,19 +78,19 @@ export default {
       this.connection.off('RefreshEvent');
       this.connection = null;
     },
-    sendMessage() {
-      axios.post(store.getters.URLS.API_URL + "Messages/SendMessage", {
+    async sendMessage() {
+      await axios.post(store.getters.URLS.API_URL + "Messages/SendMessage", {
         text: this.form.textMessage
       })
       .then(request => {
         console.log(request)
-        if (request.status = 200) {
+        if (request.status == 200) {
           this.form.textMessage = '';
         }
       });
     }
   },
-  async created() {
+  created() {
     this.initSignalR()
   }
 }

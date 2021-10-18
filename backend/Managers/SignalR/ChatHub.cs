@@ -11,19 +11,20 @@ namespace backend.Managers.SignalR
     [Authorize]
     public class ChatHub : Hub
     {
-        public async Task Send(string message, string to)
+        public async Task Send(string message)
         {
-            var userName = Context.User.Identity.Name;
-
-            if (Context.UserIdentifier != to) // если получатель и текущий пользователь не совпадают
-                await Clients.User(Context.UserIdentifier).SendAsync("Receive", message, userName);
-            await Clients.User(to).SendAsync("Receive", message, userName);
+            await Clients.All.SendAsync("ReceiveMessage", message, Context.ConnectionId);
         }
 
         public override async Task OnConnectedAsync()
         {
-            await Clients.All.SendAsync("Notify", $"Приветствуем {Context.UserIdentifier}");
+            await Clients.All.SendAsync("OnConnectedAsync", $"{Context.ConnectionId} вошел в чат");
             await base.OnConnectedAsync();
+        }
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await Clients.All.SendAsync("OnDisconnectedAsync", $"{Context.ConnectionId} покинул в чат");
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
