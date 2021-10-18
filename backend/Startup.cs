@@ -50,6 +50,7 @@ namespace backend
             services.AddTransient<ITestingService, TestingService>();
             services.AddTransient<IErrorHelper, ErrorHelper>();
             services.AddTransient<IChatService, ChatService>();
+            services.AddTransient<IChatHub, ChatHub>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

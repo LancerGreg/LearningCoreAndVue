@@ -12,6 +12,7 @@
       <section class="form">
         <div class="field">
           <div class="control">
+            <input v-model="form.chatId" class="message-input" type="text" placeholder="Type a chad id here">
             <input v-model="form.textMessage" class="message-input" type="text" placeholder="Type a message here">
             <button class="dark-bg text-white submit-button" @click.prevent="sendMessage">Submit</button>
           </div>
@@ -31,6 +32,7 @@ export default {
     return {
       messages: [],
       form: {
+        chatId: '',
         textMessage: ''
       }
     }
@@ -56,7 +58,7 @@ export default {
         this.connectToSignalR();
       })
       this.connectToSignalR();
-      this.connection.on('RefreshEvent', (data) => {
+      this.connection.on('RefreshMessage', (data) => {
         this.messages.push({ text: data.value.text, date: data.value.date })
       })
       this.connection.on('OnConnectedAsync', (data) => {
@@ -79,12 +81,11 @@ export default {
       this.connection = null;
     },
     async sendMessage() {
-      await axios.post(store.getters.URLS.API_URL + "Messages/SendMessage", {
-        text: this.form.textMessage
-      })
+      await axios.post(store.getters.URLS.API_URL + "chat/send_message?chatId=" + this.form.chatId + "&textMessage=" + this.form.textMessage)
       .then(request => {
         console.log(request)
         if (request.status == 200) {
+          this.form.chatId = '';
           this.form.textMessage = '';
         }
       });

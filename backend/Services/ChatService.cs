@@ -1,10 +1,12 @@
 ﻿using backend.Managers.ActionResult;
 using backend.Managers.ActionResult.Responses;
+using backend.Managers.SignalR;
 using backend.Models;
 using backend.Repositories;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,9 +19,12 @@ namespace backend.Services
     public class ChatService : AppDbRepository, IChatService
     {
         private readonly UserManager<AppUser> _userManager;
-        public ChatService(AppDbContext dbContext, UserManager<AppUser> userManager) : base(dbContext)
+        private readonly IChatHub _chatHub;
+
+        public ChatService(AppDbContext dbContext, UserManager<AppUser> userManager, IChatHub chatHub) : base(dbContext)
         {
             _userManager = userManager;
+            _chatHub = chatHub;
         }
 
         public async Task<IEnumerable<Chat>> GetChatsByCurrentUser(ClaimsPrincipal curentUser)
@@ -69,6 +74,14 @@ namespace backend.Services
         public async Task<IActionResult> SendMessage(ClaimsPrincipal curentUser, string chatId, string textMessage)
         {
             var user = await _userManager.GetUserAsync(curentUser);
+
+            // if chat id is null send message to general chat // DOTO: delete after release chat
+            if (chatId == null)
+            {
+                await _chatHub.SendMessageForAll(textMessage);
+                return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
+            }
+
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
 
@@ -76,6 +89,7 @@ namespace backend.Services
             var newMessage = new Message() { Sender = user, Chat = chat, DateSend = DateTime.Now, Text = textMessage };
             await dbContext.Messages.AddRangeAsync(newMessage);
             await dbContext.SaveChangesAsync();
+            await _chatHub.SendMessage(newMessage, dbContext.ChatBridges.Where(_ => _.ChatId == chat.Id).Select(_ => _.UserId).AsEnumerable());
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
 

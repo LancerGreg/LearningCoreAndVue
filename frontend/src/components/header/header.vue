@@ -16,13 +16,13 @@
     <v-navigation-drawer v-model="drawer" absolute temporary>
       <v-list nav dense>
         <v-list-item-group v-model="group" active-class="deep-purple--text text--accent-4">
-            <v-toolbar-title class="navigation-drawer-title d-flex text-xs-center justify-center">Friendes's Tree</v-toolbar-title>  
-            <v-list-item v-for="item in menuItems" :key="item.title" :to="item.path">
+            <v-toolbar-title class="navigation-drawer-title d-flex text-xs-center justify-center">Friendes's Tree</v-toolbar-title>
+            <v-list-item v-show="accountState() === 0 || item != menuItems[2]" v-for="item in menuItems" :key="item.title" :to="item.path">
               <v-list-item-icon>
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-item-icon>
               <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item>  
+            </v-list-item>
             <v-list-group v-show="accountState() === 0" prepend-icon="people" value="true">
               <template v-slot:activator>
                 <v-list-item-title>Friends</v-list-item-title>
