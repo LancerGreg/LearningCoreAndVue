@@ -8,20 +8,25 @@
               <div class="vac-icon-search">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path id="vac-icon-search" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"></path></svg>
               </div>
-              <input v-model.lazy="chatOptions.searchChat" type="search" placeholder="Search" autocomplete="off" class="vac-input">
+              <input v-model="chatOptions.searchChat" type="search" placeholder="Search" autocomplete="off" class="vac-input">
               <div @click="openAddNewChat" class="vac-svg-button vac-add-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path id="vac-icon-add" d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"></path></svg>
               </div>
             </div>
             <div id="rooms-list" class="vac-room-list">
-              <div v-if="addNewChat.display" id="add-new-room" class="vac-room-item">
+              <div v-if="addNewChat.display" class="vac-room-item">
                 <div class="vac-add-new-room-form">
                   <input v-model="addNewChat.chatName" type="text" placeholder="Chat name">
                   <button @click="createNewChat" type="submit" :disabled="addNewChat.chatName == ''">Create Chat</button>
                   <button @click="closeAddNewChat" class="button-cancel">Cancel</button>
                 </div>
               </div>
-              <div v-for="dataChat in listChats" :key="dataChat.chat.id" id="ZBRmBRMngRGSM1k0fYdR" @click="openChat(dataChat)" class="vac-room-item">
+              <div v-if="loader" class="vac-room-item">
+                <div class="loader">
+                  <Loader :loaderPerams="loaderPerams" />
+                </div>
+              </div>
+              <div v-for="dataChat in filteredChatList" :key="dataChat.chat.id" @click="openChat(dataChat)" class="vac-room-item">
                 <div class="vac-room-container">
                   <div class="vac-avatar">
                   </div>
@@ -189,9 +194,20 @@ import router from "../router"
 import store from "../store"
 import axios from 'axios'
 
-export default { 
+import Loader from '../components/loader/loader.vue'
+
+export default {
+  components: {
+    Loader
+  },
   data() {
     return {
+      loader: false,
+      loaderPerams: {
+        size: 40,
+        color: "#1976d2",
+        width: 5
+      },
       listChats: [],
       chatOptions: {
         searchChat: "",
@@ -209,28 +225,37 @@ export default {
   },
   methods: {
     // TODO: open selected chat
-    openChat(dataChat) { },
+    openChat(dataChat) { dataChat },
 
     // TODO: create a request to create a new chat 
     // after creating put a new chat at the top of the chat list 
-    createNewChat() { },
+    async createNewChat() {
+      this.loader = true
+      await axios.post(store.getters.URLS.API_URL + "chat/create_new_chat?chatName=" + this.addNewChat.chatName)
+      .then(async () => {
+        await this.getChatsList()
+      }).catch(() => {
+        router.push({ name: "Error_500"})
+      }).finally(() => this.loader = false);
+    },
 
     openAddNewChat() { this.addNewChat.display = true },
     closeAddNewChat() { this.addNewChat.display = false },
+
     openChatMethods() { this.chatOptions.chatMethods = true },
     closeChatMethods() { this.chatOptions.chatMethods = false },
 
     expandChat() { this.chatOptions.expandChat = !this.chatOptions.expandChat },
 
     // TODO: create menu bar with search user and with function of invite new user to the chat
-    showInviteUserMenu(dataChat) { },
+    showInviteUserMenu() { },
 
     // TODO: create menu bar with search user and with function of delete from this chat
-    showDeleteUserMenu(dataChat) { },
+    showDeleteUserMenu() { },
 
     // TODO: create a request to delete this chat
     // after deleting remove from this chat list 
-    deleteChat(dataChat) { },
+    deleteChat() { },
 
     // TODO: send message to server
     // after sending put a new message at the bottom of the message list 
@@ -238,17 +263,25 @@ export default {
     sendMessage() { },
 
     async getChatsList() {
+      this.loader = true
       await axios.get(store.getters.URLS.API_URL + "chat/get_chats_by_current_user")
       .then((response) => {
         this.listChats = response.data
       }).catch(() => {
         router.push({ name: "Error_500"})
-      });
+      }).finally(() => this.loader = false);
     },
   },
   async mounted() {
     await this.getChatsList();
-  }
+  },  
+  computed: {
+    filteredChatList () {
+      return this.listChats.filter(dataChat => {
+        return dataChat.chat.Name.toLowerCase().includes(this.chatOptions.searchChat.toLowerCase());
+      });
+    }
+  },
 }
 
 // Exapmle used web socket
@@ -451,6 +484,10 @@ export default {
   --chat-icon-color-audio-pause: #455247;
   --chat-icon-color-audio-cancel: #eb4034;
   --chat-icon-color-audio-confirm: #1ba65b;
+}
+
+.loader {
+  margin: auto;
 }
 
 .messanger-container {

@@ -38,19 +38,22 @@ namespace backend.Services
                                    {
                                        chat = chat, 
                                        lastMessage = messages.Any() 
-                                                     ? messages.OrderBy(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("g") }).FirstOrDefault()
+                                                     ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("g") }).FirstOrDefault()
                                                      : new { text = "", dateSend = chat.DateCreate.ToString("g") }
-                                   });
+                                   }).OrderByDescending(_ => _.lastMessage.dateSend);
         }
 
-        public async Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, List<string> friendsId)
+        public async Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, string chatName)
         {
             var user = await _userManager.GetUserAsync(curentUser);
-            var newChat = new Chat() { Name = "", DateCreate = DateTime.Now };
-            var newChatBridges = dbContext.Users.Where(_ => friendsId.Contains(_.Id) || _.Id == user.Id).Select(_ => new ChatBridge() { User = _, Chat = newChat });
-            newChat.Name = "Chat by " + String.Join(" ", newChatBridges.Select(_ => _.User.FirstName));
+            var newChat = new Chat() 
+            { 
+                Name = chatName == null || chatName.Trim() == "" ? "Chat by " + user.FirstName : chatName,
+                DateCreate = DateTime.Now 
+            };
+            var newChatBridge = new ChatBridge() { User = user, Chat = newChat };
             await dbContext.Chats.AddAsync(newChat);
-            await dbContext.ChatBridges.AddRangeAsync(newChatBridges);
+            await dbContext.ChatBridges.AddAsync(newChatBridge);
             await dbContext.SaveChangesAsync();
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
@@ -84,13 +87,6 @@ namespace backend.Services
         public async Task<IActionResult> SendMessage(ClaimsPrincipal curentUser, string chatId, string textMessage)
         {
             var user = await _userManager.GetUserAsync(curentUser);
-
-            // if chat id is null send message to general chat // DOTO: delete after release chat
-            if (chatId == null)
-            {
-                await _chatHub.SendMessageForAll(textMessage);
-                return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
-            }
 
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();

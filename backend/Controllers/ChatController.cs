@@ -25,8 +25,8 @@ namespace backend.Controllers
             new JsonResult(await _chatService.GetChatsByCurrentUser(User));
 
         [HttpPost("create_new_chat")]
-        public async Task<IActionResult> CreateNewChat(List<string> friendsId) =>
-            await _chatService.CreateNewChat(User, friendsId);
+        public async Task<IActionResult> CreateNewChat(string chatName) =>
+            await _chatService.CreateNewChat(User, chatName);
 
         [HttpPost("update_chat_name")]
         public async Task<IActionResult> UpdateChatName(string chatId, string newName) =>
