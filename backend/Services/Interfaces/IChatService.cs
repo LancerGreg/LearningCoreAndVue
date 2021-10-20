@@ -11,7 +11,7 @@ namespace backend.Services.Interfaces
 {
     public interface IChatService
     {
-        Task<IEnumerable<Chat>> GetChatsByCurrentUser(ClaimsPrincipal curentUser);
+        Task<IEnumerable<object>> GetChatsByCurrentUser(ClaimsPrincipal curentUser);
         Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, List<string> friendsId);
         Task<IActionResult> UpdateChatName(ClaimsPrincipal curentUser, string chatId, string newName);
         Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, List<string> friendsId);

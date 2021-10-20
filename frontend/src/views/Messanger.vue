@@ -21,73 +21,23 @@
                   <button @click="closeAddNewChat" class="button-cancel">Cancel</button>
                 </div>
               </div>
-              <div id="ZBRmBRMngRGSM1k0fYdR" @click="openChat" class="vac-room-item">
+              <div v-for="dataChat in listChats" :key="dataChat.chat.id" id="ZBRmBRMngRGSM1k0fYdR" @click="openChat(dataChat)" class="vac-room-item">
                 <div class="vac-room-container">
                   <div class="vac-avatar">
                   </div>
                   <div class="vac-name-container vac-text-ellipsis">
                     <div class="vac-title-container">
-                      <div class="vac-room-name vac-text-ellipsis"> Leia, gdf </div>
-                      <div class="vac-text-date"> Today, 14:07 </div>
+                      <div class="vac-room-name vac-text-ellipsis">{{ dataChat.chat.Name }}</div>
+                      <div class="vac-text-date">{{ dataChat.lastMessage.dateSend }}</div>
                     </div>
                     <div class="vac-text-last">
                       <div class="vac-format-message-wrapper vac-text-ellipsis">
                         <div class="vac-text-ellipsis">
                           <div class="vac-format-container">
                             <span class="vac-text-ellipsis">
-                              <span>aaa</span>
+                              <span>{{ dataChat.lastMessage.text }}</span>
                             </span>
                           </div>
-                        </div>
-                      </div>
-                      <div class="vac-room-options-container">
-                        <div v-click-outside="closeChatMethods" @click="openChatMethods" class="vac-svg-button vac-list-room-options">
-                          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
-                            <path id="vac-icon-dropdown-room" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
-                          </svg>
-                        </div>
-                        <div v-if="chatOptions.chatMethods" class="vac-menu-options">
-                          <div class="vac-menu-list">
-                            <div>
-                              <div @click="showInviteUserMenu" class="vac-menu-item">Invite User</div>
-                            </div>
-                            <div>
-                              <div @click="showDeleteUserMenu" class="vac-menu-item">Remove User</div>
-                            </div>
-                            <div>
-                              <div @click="deleteChat" class="vac-menu-item">Delete Chat</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="EGrh24tEHF82hf2" class="vac-room-item">
-                <div class="vac-room-container">
-                  <div class="vac-avatar">
-                  </div>
-                  <div class="vac-name-container vac-text-ellipsis">
-                    <div class="vac-title-container">
-                      <div class="vac-room-name vac-text-ellipsis"> Leia, gdf </div>
-                      <div class="vac-text-date"> Today, 14:07 </div>
-                    </div>
-                    <div class="vac-text-last">
-                      <div class="vac-format-message-wrapper vac-text-ellipsis">
-                        <div class="vac-text-ellipsis">
-                          <div class="vac-format-container">
-                            <span class="vac-text-ellipsis">
-                              <span>aaa</span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="vac-room-options-container">
-                        <div class="vac-svg-button vac-list-room-options">
-                          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
-                            <path id="vac-icon-dropdown-room" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
-                          </svg>
                         </div>
                       </div>
                     </div>
@@ -111,12 +61,11 @@
                     <div class="vac-room-info vac-text-ellipsis"></div>
                   </div>
                 </div>
-                <div class="vac-svg-button vac-room-options">
+                <div v-click-outside="closeChatMethods" @click="openChatMethods" class="vac-svg-button vac-room-options">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
                     <path id="vac-icon-menu" d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"></path>
                   </svg>
                 </div>
-                <!-- TODO: 
                 <div v-if="chatOptions.chatMethods" class="vac-menu-options">
                   <div class="vac-menu-list">
                     <div>
@@ -129,7 +78,7 @@
                       <div @click="deleteChat" class="vac-menu-item">Delete Chat</div>
                     </div>
                   </div>
-                </div> -->
+                </div>
               </div>
             </div>
             <div class="vac-container-scroll">
@@ -145,7 +94,57 @@
                       </div>
                     </div>
                   </div>
-                  <span></span>
+                  <span>
+                    <div>
+                      <div id="f0eLbI3T3EU8tR3bgxy9" class="vac-message-wrapper">
+                        <div class="vac-message-box vac-offset-current">
+                          <div class="vac-message-container vac-message-container-offset">
+                            <div class="vac-message-card vac-message-current">
+                              <div class="vac-format-message-wrapper">
+                                <div class="">
+                                  <div class="vac-format-container">
+                                    <span class="">
+                                      <span>hello</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="vac-text-timestamp">
+                                <span>08:29</span>
+                                <span>
+                                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24" class="vac-icon-check">
+                                    <path id="vac-icon-double-checkmark-seen" d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"></path>
+                                  </svg>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div id="yv9tAFPn9NCdjvb1t2cj" class="vac-message-wrapper">
+                        <div class="vac-message-box">
+                          <div class="vac-message-container vac-message-container-offset">
+                            <div class="vac-message-card">
+                              <div class="vac-format-message-wrapper">
+                                <div class="">
+                                  <div class="vac-format-container">
+                                    <span class="">
+                                      <span>hii</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="vac-text-timestamp">
+                                <span>09:54</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </span>
                 </div>
               </div>
             </div>
@@ -186,6 +185,10 @@
 </template>
  
 <script>
+import router from "../router"
+import store from "../store"
+import axios from 'axios'
+
 export default { 
   data() {
     return {
@@ -206,7 +209,7 @@ export default {
   },
   methods: {
     // TODO: open selected chat
-    openChat() { },
+    openChat(dataChat) { },
 
     // TODO: create a request to create a new chat 
     // after creating put a new chat at the top of the chat list 
@@ -220,25 +223,35 @@ export default {
     expandChat() { this.chatOptions.expandChat = !this.chatOptions.expandChat },
 
     // TODO: create menu bar with search user and with function of invite new user to the chat
-    showInviteUserMenu() { },
+    showInviteUserMenu(dataChat) { },
 
     // TODO: create menu bar with search user and with function of delete from this chat
-    showDeleteUserMenu() { },
+    showDeleteUserMenu(dataChat) { },
 
     // TODO: create a request to delete this chat
     // after deleting remove from this chat list 
-    deleteChat() { },
+    deleteChat(dataChat) { },
 
     // TODO: send message to server
     // after sending put a new message at the bottom of the message list 
     // implemented WebSocket with sending
     sendMessage() { },
+
+    async getChatsList() {
+      await axios.get(store.getters.URLS.API_URL + "chat/get_chats_by_current_user")
+      .then((response) => {
+        this.listChats = response.data
+      }).catch(() => {
+        router.push({ name: "Error_500"})
+      });
+    },
+  },
+  async mounted() {
+    await this.getChatsList();
   }
 }
 
 // Exapmle used web socket
-// import store from "../store"
-// import axios from 'axios'
 
 // import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
 
@@ -916,6 +929,72 @@ button:disabled {
 
 #vac-icon-send-disabled {
   fill: var(--chat-icon-color-send-disabled);
+}
+
+.vac-message-wrapper {
+  font-family: inherit;
+}
+
+.vac-message-box {
+  display: flex;
+  flex: 0 0 50%;
+  max-width: 50%;
+  justify-content: flex-start;
+  line-height: 1.4;
+}
+
+.vac-offset-current {
+  margin-left: 50%;
+  justify-content: flex-end;
+}
+
+.vac-message-container {
+  position: relative;
+  padding: 2px 10px;
+  align-items: end;
+  min-width: 100px;
+  box-sizing: content-box;
+}
+
+.vac-message-current {
+  background: var(--chat-message-bg-color-me) !important;
+}
+
+.vac-message-card {
+  background: var(--chat-message-bg-color);
+  color: var(--chat-message-color);
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 6px 9px 3px;
+  white-space: pre-line;
+  max-width: 100%;
+  transition-property: box-shadow,opacity;
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  will-change: box-shadow;
+  box-shadow: 0 1px 1px -1px rgba(0,0,0,.1),0 1px 1px -1px rgba(0,0,0,.11),0 1px 2px -1px rgba(0,0,0,.11);
+}
+
+.vac-format-container {
+  display: inline;
+}
+
+.vac-text-timestamp {
+  font-size: 10px;
+  color: var(--chat-message-color-timestamp);
+  text-align: right;
+}
+
+.vac-icon-check {
+  height: 14px;
+  width: 14px;
+  vertical-align: middle;
+  margin: -3px -3px 0 3px;
+}
+
+
+
+#vac-icon-double-checkmark-seen {
+  fill: var(--chat-icon-color-checkmark-seen);
 }
 
 @media screen and (max-width: 900px) {

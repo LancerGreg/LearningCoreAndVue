@@ -27,10 +27,20 @@ namespace backend.Services
             _chatHub = chatHub;
         }
 
-        public async Task<IEnumerable<Chat>> GetChatsByCurrentUser(ClaimsPrincipal curentUser)
+        public async Task<IEnumerable<object>> GetChatsByCurrentUser(ClaimsPrincipal curentUser)
         {
             var user = await _userManager.GetUserAsync(curentUser);
-            return dbContext.Chats.Where(_ => dbContext.ChatBridges.Where(cb => cb.UserId == user.Id).Select(cb => cb.ChatId).Contains(_.Id));             
+            var chats = dbContext.Chats.Where(_ => dbContext.ChatBridges.Where(cb => cb.UserId == user.Id).Select(cb => cb.ChatId).Contains(_.Id)).AsEnumerable();
+            return chats.GroupJoin(dbContext.Messages.AsEnumerable(),
+                                   chat => chat.Id,
+                                   message => message.ChatId,
+                                   (chat, messages) => new
+                                   {
+                                       chat = chat, 
+                                       lastMessage = messages.Any() 
+                                                     ? messages.OrderBy(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("g") }).FirstOrDefault()
+                                                     : new { text = "", dateSend = chat.DateCreate.ToString("g") }
+                                   });
         }
 
         public async Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, List<string> friendsId)
