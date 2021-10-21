@@ -29,22 +29,14 @@ namespace backend.Managers.SignalR
 
         public HubCallerContext HubContext() => Context;
 
-        public async Task SendMessageForAll(string newMessage)
-        {
-            await _hubContext.Clients.All.SendAsync("RefreshMessage", new JsonResult(new
-            {
-                text = newMessage,
-                date = DateTime.Now.ToString("yyyy/MM/dd, HH:MM:ss")
-            }));
-        }
-
         public async Task SendMessage(Message newMessage, IEnumerable<string> usersId)
         {
             await _hubContext.Clients.Users(usersId).SendAsync("RefreshMessage", new JsonResult(new
             {
                 chatId = newMessage.ChatId,
+                messageId = newMessage.Id,
                 text = newMessage.Text,
-                date = newMessage.DateSend.ToString("yyyy/MM/dd, HH:MM:ss")
+                date = newMessage.DateSend.ToString("yyyy/MM/dd, HH:mm:ss"),
             }));
         }
 

@@ -169,6 +169,7 @@
 </template>
  
 <script>
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
 import router from "../router"
 import store from "../store"
 import axios from 'axios'
@@ -221,13 +222,13 @@ export default {
       this.selectedChatLoader = false
       this.isOpenChat = true
       this.scrollingChat()
+      this.messageOptions.textMessage = ""
     },
 
     scrollingChat() {
       setTimeout(() => {
         var container = this.$refs.containerScroll
         container.scrollTop = container.scrollHeight;
-        this.messageOptions.textMessage = ""
       }, 10);  
     },
 
@@ -253,7 +254,7 @@ export default {
         await this.getChatsList()
       }).catch(() => {
         router.push({ name: "Error_500"})
-      })
+      }).finally(() => this.loader = false);
     },
 
     openAddNewChat() { this.addNewChat.display = true },
@@ -286,6 +287,7 @@ export default {
       this.listChats[index].lastMessage.text = this.messageOptions.textMessage
       this.listChats[index].lastMessage.dateSend = (new Date()).toLocaleString('en-ZA', this.dateTimeFormat)
       this.scrollingChat()
+      this.messageOptions.textMessage = ""
     },
 
     async getChatsList() {
@@ -297,8 +299,51 @@ export default {
         router.push({ name: "Error_500"})
       }).finally(() => this.chatListLoader = false);
     },
+
+    initSignalR() {
+      this.connection = new HubConnectionBuilder()
+      .withUrl(window.location.origin + '/signalr-hub')
+      .configureLogging(LogLevel.Information)
+      .build();
+
+      this.connection.onclose(() => {
+        this.connectToSignalR();
+      })
+
+      this.connectToSignalR();
+      this.connection.on('RefreshMessage', (data) => {
+        debugger;
+        var newMessage = { id: data.value.messageId, date: data.value.date, text: data.value.text, isCurrentUserMessage: false }
+        const index = this.listChats.findIndex(l => l.chat.Id === data.value.chatId)
+        this.listChats[index].listMessages.push(newMessage)
+        this.listChats[index].lastMessage.text = this.messageOptions.textMessage
+        this.listChats[index].lastMessage.dateSend = (new Date()).toLocaleString('en-ZA', this.dateTimeFormat)
+        this.scrollingChat()
+      })
+      // TODO: implemented online status
+      // this.connection.on('OnConnectedAsync', (data) => {
+      //   this.messages.push({ text: data, date: (new Date()).toLocaleString() })
+      // })
+      // this.connection.on('OnDisconnectedAsync', (data) => {
+      //   this.messages.push({ text: data, date: (new Date()).toLocaleString() })
+      // })
+    },
+
+    connectToSignalR() {
+      this.connection.start().catch(err => {
+        console.error('Failed to connect with hub', err)
+        return new Promise((resolve, reject) =>
+          setTimeout(() => this.connectToSignalR().then(resolve).catch(reject), 5000))
+      })
+    },
+
+    closeConnectionSR() {
+      if (!this.connection) return;
+      this.connection.off('RefreshMessage');
+      this.connection = null;
+    },
   },
-  
+
   async mounted() {
     await this.getChatsList();
   },
@@ -310,11 +355,13 @@ export default {
       });
     },
   },
+
+  created() {
+    this.initSignalR()
+  }
 }
 
 // Exapmle used web socket
-
-// import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
 
 // export default { 
 //   data() {

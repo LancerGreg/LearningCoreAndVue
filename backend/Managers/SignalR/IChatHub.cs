@@ -11,7 +11,6 @@ namespace backend.Managers.SignalR
     public interface IChatHub
     {
         HubCallerContext HubContext();
-        Task SendMessageForAll(string newMessage);
         Task SendMessage(Message newMessage, IEnumerable<string> usersId);
     }
 }

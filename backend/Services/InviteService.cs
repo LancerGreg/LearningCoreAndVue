@@ -34,7 +34,7 @@ namespace backend.Services
         {
             var invites = (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide);
             var senders = dbContext.Users.Where(_ => invites.Select(i => i.SenderId).Contains(_.Id));
-            return invites.Select(_ => new InviteTable() { InviteId = _.Id, WhenSend = _.WhenSend.Value.ToString("yyyy/MM/dd, HH:MM:ss"), SenderId = _.SenderId, FirstName = senders.FirstOrDefault(u => u.Id == _.SenderId).FirstName, LastName = senders.FirstOrDefault(u => u.Id == _.SenderId).LastName });
+            return invites.Select(_ => new InviteTable() { InviteId = _.Id, WhenSend = _.WhenSend.Value.ToString("yyyy/MM/dd, HH:mm:ss"), SenderId = _.SenderId, FirstName = senders.FirstOrDefault(u => u.Id == _.SenderId).FirstName, LastName = senders.FirstOrDefault(u => u.Id == _.SenderId).LastName });
         }
 
         public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).Count();

@@ -38,8 +38,8 @@ namespace backend.Services
                                    {
                                        chat = chat, 
                                        lastMessage = messages.Any() 
-                                                     ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("yyyy/MM/dd, HH:MM:ss") }).FirstOrDefault()
-                                                     : new { text = "", dateSend = chat.DateCreate.ToString("yyyy/MM/dd, HH:MM:ss") },
+                                                     ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss") }).FirstOrDefault()
+                                                     : new { text = "", dateSend = chat.DateCreate.ToString("yyyy/MM/dd, HH:mm:ss") },
                                        listMessages = new List<Message>(),
                                    }).OrderByDescending(_ => _.lastMessage.dateSend);
         }
@@ -96,7 +96,7 @@ namespace backend.Services
             var newMessage = new Message() { Sender = user, Chat = chat, DateSend = DateTime.Now, Text = textMessage };
             await dbContext.Messages.AddAsync(newMessage);
             await dbContext.SaveChangesAsync();
-            await _chatHub.SendMessage(newMessage, dbContext.ChatBridges.Where(_ => _.ChatId == chat.Id).Select(_ => _.UserId).AsEnumerable());
+            await _chatHub.SendMessage(newMessage, dbContext.ChatBridges.Where(_ => _.ChatId == chat.Id).Where(_ => _.UserId != user.Id).Select(_ => _.UserId).AsEnumerable());
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
 
@@ -106,7 +106,7 @@ namespace backend.Services
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
 
-            var messages = dbContext.Messages.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)).OrderByDescending(_ => _.DateSend).Select(_ => new { id = _.Id, date = _.DateSend.ToString("yyyy/MM/dd, HH:MM:ss"), text = _.Text, isCurrentUserMessage = _.SenderId == user.Id }).OrderBy(_ => _.date);
+            var messages = dbContext.Messages.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)).OrderByDescending(_ => _.DateSend).Select(_ => new { id = _.Id, date = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss"), text = _.Text, isCurrentUserMessage = _.SenderId == user.Id }).OrderBy(_ => _.date);
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult(messages);
         }
     }
