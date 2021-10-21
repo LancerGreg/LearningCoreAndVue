@@ -34,7 +34,7 @@ namespace backend.Managers.SignalR
             await _hubContext.Clients.All.SendAsync("RefreshMessage", new JsonResult(new
             {
                 text = newMessage,
-                date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")
+                date = DateTime.Now.ToString("yyyy/MM/dd, HH:MM:ss")
             }));
         }
 
@@ -44,7 +44,7 @@ namespace backend.Managers.SignalR
             {
                 chatId = newMessage.ChatId,
                 text = newMessage.Text,
-                date = newMessage.DateSend.ToString("MM/dd/yyyy HH:mm:ss")
+                date = newMessage.DateSend.ToString("yyyy/MM/dd, HH:MM:ss")
             }));
         }
 

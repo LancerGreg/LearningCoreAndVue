@@ -16,6 +16,6 @@ namespace backend.Services.Interfaces
         Task<IActionResult> UpdateChatName(ClaimsPrincipal curentUser, string chatId, string newName);
         Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, List<string> friendsId);
         Task<IActionResult> SendMessage(ClaimsPrincipal curentUser, string chatId, string textMessage);
-        Task<IActionResult> GetMessageChunk(ClaimsPrincipal curentUser, string chatId, int chunkNumber);
+        Task<IActionResult> GetMessages(ClaimsPrincipal curentUser, string chatId);
     }
 }

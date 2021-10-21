@@ -41,7 +41,7 @@ namespace backend.Controllers
             await _chatService.SendMessage(User, chatId, textMessage);
 
         [HttpGet("get_message_chunk")]
-        public async Task<IActionResult> GetMessageChunk(string chatId, int chunkNumber) =>
-            await _chatService.GetMessageChunk(User, chatId, chunkNumber);
+        public async Task<IActionResult> GetMessageChunk(string chatId) =>
+            await _chatService.GetMessages(User, chatId);
     }
 }

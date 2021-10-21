@@ -1,5 +1,6 @@
 <template>
   <div class="messanger-container">
+    <ResponseDialog ref="responseDialog"/>
     <div class="window-container">
       <div class="vac-card-window">
         <div class="vac-chat-container">
@@ -21,12 +22,12 @@
                   <button @click="closeAddNewChat" class="button-cancel">Cancel</button>
                 </div>
               </div>
-              <div v-if="loader" class="vac-room-item">
+              <div v-if="chatListLoader" class="vac-room-item">
                 <div class="loader">
                   <Loader :loaderPerams="loaderPerams" />
                 </div>
               </div>
-              <div v-for="dataChat in filteredChatList" :key="dataChat.chat.id" @click="openChat(dataChat)" class="vac-room-item">
+              <div v-for="dataChat in filteredChatList" :key="dataChat.chat.Id" @click="clickToChat(dataChat)" class="vac-room-item">
                 <div class="vac-room-container">
                   <div class="vac-avatar">
                   </div>
@@ -51,7 +52,10 @@
               </div>
             </div>
           </div>
-          <div class="vac-col-messages">
+          <div v-if="selectedChatLoader" class="loader">
+            <Loader :loaderPerams="loaderPerams" />
+          </div>
+          <div v-show="isOpenChat" class="vac-col-messages">
             <div class="vac-room-header vac-app-border-b">
               <div class="vac-room-wrapper">
                 <div @click="expandChat" class="vac-svg-button vac-toggle-button" v-bind:class="{ 'vac-rotate-icon': !chatOptions.expandChat }">
@@ -62,8 +66,7 @@
                 <div class="vac-info-wrapper">
                   <div class="vac-avatar"></div>
                   <div class="vac-text-ellipsis">
-                    <div class="vac-room-name vac-text-ellipsis"> ,mk,mkknk </div>
-                    <div class="vac-room-info vac-text-ellipsis"></div>
+                    <div class="vac-room-name vac-text-ellipsis">{{ selectedChat.chatName }}</div>
                   </div>
                 </div>
                 <div v-click-outside="closeChatMethods" @click="openChatMethods" class="vac-svg-button vac-room-options">
@@ -86,9 +89,10 @@
                 </div>
               </div>
             </div>
-            <div class="vac-container-scroll">
+            <div ref="containerScroll" class="vac-container-scroll">
               <div class="vac-messages-container">
                 <div>
+                  <!-- TODO: If the last message was loaded, then display the date the chat was created 
                   <div>
                     <div class="vac-text-started"> Conversation started on: 17 October 2021 </div>
                   </div>
@@ -98,51 +102,26 @@
                         <div id="vac-circle"></div>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                   <span>
-                    <div>
-                      <div id="f0eLbI3T3EU8tR3bgxy9" class="vac-message-wrapper">
-                        <div class="vac-message-box vac-offset-current">
+                    <div v-for="message in selectedChat.listMessages" :key="message.id">
+                      <div class="vac-message-wrapper">
+                        <div class="vac-message-box" v-bind:class="{ 'vac-offset-current': message.isCurrentUserMessage }">
                           <div class="vac-message-container vac-message-container-offset">
-                            <div class="vac-message-card vac-message-current">
+                            <div class="vac-message-card" v-bind:class="{ 'vac-message-current': message.isCurrentUserMessage }">
                               <div class="vac-format-message-wrapper">
-                                <div class="">
-                                  <div class="vac-format-container">
-                                    <span class="">
-                                      <span>hello</span>
-                                    </span>
-                                  </div>
+                                <div class="vac-format-container">
+                                  <span>{{ message.text }}</span>
                                 </div>
                               </div>
                               <div class="vac-text-timestamp">
-                                <span>08:29</span>
-                                <span>
+                                <span>{{ message.date }}</span>
+                                <!-- TODO: implement already read system
+                                  <span>
                                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24" class="vac-icon-check">
                                     <path id="vac-icon-double-checkmark-seen" d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"></path>
                                   </svg>
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div id="yv9tAFPn9NCdjvb1t2cj" class="vac-message-wrapper">
-                        <div class="vac-message-box">
-                          <div class="vac-message-container vac-message-container-offset">
-                            <div class="vac-message-card">
-                              <div class="vac-format-message-wrapper">
-                                <div class="">
-                                  <div class="vac-format-container">
-                                    <span class="">
-                                      <span>hii</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="vac-text-timestamp">
-                                <span>09:54</span>
+                                </span> -->
                               </div>
                             </div>
                           </div>
@@ -195,14 +174,17 @@ import store from "../store"
 import axios from 'axios'
 
 import Loader from '../components/loader/loader.vue'
+import ResponseDialog from "../components/responseDialog/responseDialog.vue"
 
 export default {
   components: {
-    Loader
+    Loader,
+    ResponseDialog
   },
   data() {
     return {
-      loader: false,
+      chatListLoader: false,
+      selectedChatLoader: false,
       loaderPerams: {
         size: 40,
         color: "#1976d2",
@@ -213,30 +195,65 @@ export default {
         searchChat: "",
         chatMethods: false,
         expandChat: true,
+        dateTimeFormat: { year: 'numeric', month: 'numeric', day: 'numeric', hour:"numeric", minute:"numeric", second:"numeric", hour12: false }
+      },
+      isOpenChat: false,
+      selectedChat: {
+        chatId: "",
+        chatName: "",
+        listMessages: new Array()
       },
       addNewChat: {
         display: false,
         chatName: "",
       },
       messageOptions: {
+        textMessageId: 0,
         textMessage: "",
       }
     }
   },
   methods: {
-    // TODO: open selected chat
-    openChat(dataChat) { dataChat },
+    openChat(dataChat) {
+      this.selectedChat.chatId = dataChat.chat.Id
+      this.selectedChat.chatName = dataChat.chat.Name
+      this.selectedChat.listMessages = dataChat.listMessages
+      this.selectedChatLoader = false
+      this.isOpenChat = true
+      this.scrollingChat()
+    },
 
-    // TODO: create a request to create a new chat 
-    // after creating put a new chat at the top of the chat list 
+    scrollingChat() {
+      setTimeout(() => {
+        var container = this.$refs.containerScroll
+        container.scrollTop = container.scrollHeight;
+        this.messageOptions.textMessage = ""
+      }, 10);  
+    },
+
+    async loadMessages(dataChat) {
+      await axios.get(store.getters.URLS.API_URL + "chat/get_message_chunk?chatId=" + dataChat.chat.Id)
+      .then((response) => {
+        dataChat.listMessages = response.data
+        this.openChat(dataChat)
+      }).catch(error => {
+        this.$refs.responseDialog.showErrorResponse(error)
+      });
+    },
+
+    async clickToChat(dataChat) {
+      this.selectedChatLoader = true
+      await this.loadMessages(dataChat)
+    },
+    
     async createNewChat() {
-      this.loader = true
+      this.chatListLoader = true
       await axios.post(store.getters.URLS.API_URL + "chat/create_new_chat?chatName=" + this.addNewChat.chatName)
       .then(async () => {
         await this.getChatsList()
       }).catch(() => {
         router.push({ name: "Error_500"})
-      }).finally(() => this.loader = false);
+      })
     },
 
     openAddNewChat() { this.addNewChat.display = true },
@@ -257,30 +274,41 @@ export default {
     // after deleting remove from this chat list 
     deleteChat() { },
 
-    // TODO: send message to server
-    // after sending put a new message at the bottom of the message list 
-    // implemented WebSocket with sending
-    sendMessage() { },
+    // TODO: implemented WebSocket with sending
+    async sendMessage() { 
+      await axios.post(store.getters.URLS.API_URL + "chat/send_message?chatId=" + this.selectedChat.chatId + "&textMessage=" + this.messageOptions.textMessage)
+      .then().catch(error => {
+        this.$refs.responseDialog.showErrorResponse(error)
+      });
+      var newMessage = { id: ++this.messageOptions.textMessageId, date: (new Date()).toLocaleString('en-ZA', this.dateTimeFormat), text: this.messageOptions.textMessage, isCurrentUserMessage: true }
+      const index = this.listChats.findIndex(l => l.chat.Id === this.selectedChat.chatId)
+      this.listChats[index].listMessages.push(newMessage)
+      this.listChats[index].lastMessage.text = this.messageOptions.textMessage
+      this.listChats[index].lastMessage.dateSend = (new Date()).toLocaleString('en-ZA', this.dateTimeFormat)
+      this.scrollingChat()
+    },
 
     async getChatsList() {
-      this.loader = true
+      this.chatListLoader = true
       await axios.get(store.getters.URLS.API_URL + "chat/get_chats_by_current_user")
       .then((response) => {
         this.listChats = response.data
       }).catch(() => {
         router.push({ name: "Error_500"})
-      }).finally(() => this.loader = false);
+      }).finally(() => this.chatListLoader = false);
     },
   },
+  
   async mounted() {
     await this.getChatsList();
-  },  
+  },
+
   computed: {
-    filteredChatList () {
+    filteredChatList() {
       return this.listChats.filter(dataChat => {
         return dataChat.chat.Name.toLowerCase().includes(this.chatOptions.searchChat.toLowerCase());
       });
-    }
+    },
   },
 }
 
