@@ -5,44 +5,31 @@
         <h1>Sign Up</h1>
       </v-flex>
       <v-flex xs12 sm6 offset-sm3 mt-3>
-        <form>
-          <v-layout column>
-            <v-flex>
-              <v-text-field
-                v-model="SignUpUser.Email"
-                name="email"
-                label="Email"
-                id="email"
-                type="email"
-                required></v-text-field>
-            </v-flex>
-            <v-flex>
-              <v-text-field
-                v-model="SignUpUser.Password"
-                name="password"
-                label="Password"
-                id="password"
-                type="password"
-                required></v-text-field>
-            </v-flex>
-            <v-flex>
-              <v-text-field
-                v-model="SignUpUser.PasswordConfirm"
-                name="confirmPassword"
-                label="Confirm Password"
-                id="confirmPassword"
-                type="password"
-                required
-                ></v-text-field>
-            </v-flex>
-            <v-flex class="text-xs-center justify-content-between flex-flow-wrap" mt-5>
+        <validation-observer>
+          <form @submit.prevent="toSignUn">
+            <validation-provider v-slot="{ errors }" name="email" rules="required|email">
+              <v-card-text>
+                <v-text-field type="email" v-model="SignUpUser.Email" :error-messages="errors" label="Email" required></v-text-field>
+              </v-card-text>
+            </validation-provider>
+            <validation-provider v-slot="{ errors }" name="password" rules="required|min:8">
+              <v-card-text>
+                <v-text-field type="password" v-model="SignUpUser.Password" :error-messages="errors" label="Password" required></v-text-field>
+              </v-card-text>
+            </validation-provider>
+            <validation-provider v-slot="{ errors }" name="confirmPassword" rules="required|min:8">
+              <v-card-text>
+                <v-text-field type="password" v-model="SignUpUser.PasswordConfirm" :error-messages="errors" label="Confirm password" required></v-text-field>
+              </v-card-text>
+            </validation-provider>
+            <v-flex class="text-xs-center justify-content-between flex-flow-wrap pl-4 pr-4" mt-5>
               <Loader v-if="loader" :loaderPerams="loaderPerams" />
-              <v-btn v-else color="primary" @click="toSignUn">Sign Up</v-btn>
+              <v-btn v-else type="submit" color="primary">Sign Up</v-btn>
               <OnSignIn />
             </v-flex>
             <ResponseDialog ref="responseDialog"/>
-          </v-layout>
-        </form>
+          </form>
+        </validation-observer>
       </v-flex>
     </v-layout>
   </v-container>
@@ -55,6 +42,22 @@ import Loader from "../loader/loader.vue"
 import ResponseDialog from "../responseDialog/responseDialog.vue"
 
 import OnSignIn from '../account/buttons/onSignIn.vue'
+
+import { required, email, min } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+setInteractionMode('eager')
+extend('required', {
+  ...required,
+  message: '{_field_} can not be empty',
+})
+extend('min', {
+  ...min,
+  message: '{_field_} may be greater than {length} characters',
+})
+extend('email', {
+  ...email,
+  message: 'Email must be valid',
+})
 
 export default {
   data: () => {
@@ -90,7 +93,9 @@ export default {
   components: {
     OnSignIn,
     Loader,
-    ResponseDialog
+    ResponseDialog,
+    ValidationProvider,
+    ValidationObserver,
   }
 }
 </script>

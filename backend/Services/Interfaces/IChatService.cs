@@ -17,5 +17,6 @@ namespace backend.Services.Interfaces
         Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, List<string> friendsId);
         Task<IActionResult> SendMessage(ClaimsPrincipal curentUser, string chatId, string textMessage);
         Task<IActionResult> GetMessages(ClaimsPrincipal curentUser, string chatId);
+        Task<IActionResult> LeaveChat(ClaimsPrincipal curentUser, string chatId);
     }
 }

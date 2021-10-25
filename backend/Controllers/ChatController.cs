@@ -24,6 +24,10 @@ namespace backend.Controllers
         public async Task<JsonResult> GetChatsByCurrentUser() =>
             new JsonResult(await _chatService.GetChatsByCurrentUser(User));
 
+        [HttpGet("get_message_chunk")]
+        public async Task<IActionResult> GetMessageChunk(string chatId) =>
+            await _chatService.GetMessages(User, chatId);
+
         [HttpPost("create_new_chat")]
         public async Task<IActionResult> CreateNewChat(string chatName) =>
             await _chatService.CreateNewChat(User, chatName);
@@ -40,8 +44,8 @@ namespace backend.Controllers
         public async Task<IActionResult> SendMessage(string chatId, string textMessage) =>
             await _chatService.SendMessage(User, chatId, textMessage);
 
-        [HttpGet("get_message_chunk")]
-        public async Task<IActionResult> GetMessageChunk(string chatId) =>
-            await _chatService.GetMessages(User, chatId);
+        [HttpDelete("leave_chat")]
+        public async Task<IActionResult> LeaveChat(string chatId) =>
+            await _chatService.LeaveChat(User, chatId);
     }
 }

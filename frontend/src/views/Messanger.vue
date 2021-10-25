@@ -16,11 +16,23 @@
             </div>
             <div id="rooms-list" class="vac-room-list">
               <div v-if="addNewChat.display" class="vac-room-item">
-                <div class="vac-add-new-room-form">
-                  <input v-model="addNewChat.chatName" type="text" placeholder="Chat name">
-                  <button @click="createNewChat" type="submit" :disabled="addNewChat.chatName == ''">Create Chat</button>
-                  <button @click="closeAddNewChat" class="button-cancel">Cancel</button>
-                </div>
+                <validation-observer>
+                  <form @submit.prevent="createNewChat">
+                    <validation-provider class="vac-add-new-room-form" v-slot="{ errors }" name="ChatName" rules="required|max:64">
+                      <v-card-text>
+                        <v-text-field v-model="addNewChat.chatName" :counter="64" :error-messages="errors" label="Chat name" required></v-text-field>
+                      </v-card-text>
+                      <v-card-actions>
+                        <button type="submit" :disabled="addNewChat.chatName == '' || addNewChat.chatName.length > 64">
+                          Submit
+                        </button>
+                        <button type="reset" class="button-cancel" @click="closeAddNewChat">
+                          Cancel
+                        </button>
+                      </v-card-actions>
+                    </validation-provider>
+                  </form>
+                </validation-observer>
               </div>
               <div v-if="chatListLoader" class="vac-room-item">
                 <div class="loader">
@@ -80,13 +92,53 @@
                       <div @click="showInviteUserMenu" class="vac-menu-item">Invite User</div>
                     </div>
                     <div>
-                      <div @click="showDeleteUserMenu" class="vac-menu-item">Remove User</div>
+                      <div @click="showRenameChatMenu" class="vac-menu-item">Rename chat</div>
                     </div>
                     <div>
-                      <div @click="deleteChat" class="vac-menu-item">Delete Chat</div>
+                      <div @click="showLeaveRequest" class="vac-menu-item">Leave Chat</div>
                     </div>
                   </div>
                 </div>
+                <v-dialog v-model="renameChat.display" transition="dialog-bottom-transition" max-width="600">
+                  <v-card>
+                    <v-toolbar v-bind:color="'#1976d2'" dark>Rename chat</v-toolbar>
+                    <v-card-text></v-card-text>
+                    <validation-observer>
+                      <form @submit.prevent="updateChatName">
+                        <validation-provider v-slot="{ errors }" name="ChatName" rules="required|max:64">
+                          <v-card-text>
+                            <v-text-field v-model="renameChat.newChatName" :counter="64" :error-messages="errors" label="New chat name" required></v-text-field>
+                          </v-card-text>
+                        </validation-provider>
+                        <v-card-actions>
+                          <button type="submit" :disabled="renameChat.newChatName == '' || renameChat.newChatName.length > 64">
+                            Submit
+                          </button>
+                          <button type="reset" class="button-cancel" @click="closeRenameChatMenu">
+                            Cancel
+                          </button>
+                        </v-card-actions>
+                      </form>
+                    </validation-observer>
+                  </v-card>
+                </v-dialog>
+                <v-dialog v-model="isOpenLeaveRequest" transition="dialog-bottom-transition" max-width="600">
+                  <v-card>
+                    <v-toolbar v-bind:color="'#1976d2'" dark>Leave chat</v-toolbar>
+                    <v-card-text></v-card-text>
+                    <v-card-text>
+                      <div class="vac-text-ellipsis">Are you sure you want to leave the chat?</div>
+                    </v-card-text>
+                    <v-card-actions>
+                      <button class="button-cancel" @click="leaveChat">
+                        Submit
+                      </button>
+                      <button color="primary" @click="closeLeaveRequest">
+                        Cancel
+                      </button>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </div>
             </div>
             <div ref="containerScroll" class="vac-container-scroll">
@@ -146,25 +198,6 @@
         </div>
       </div>
     </div>
-      <!-- Exapmle used web socket
-      <h1>Simple chat</h1>
-      <div v-if="!messages" class="text-center">
-        <p><em>Loading...</em></p>
-      </div>
-      <template v-if="messages">
-        <div v-for="(message, index) in messages" :key="index">
-          <p><em>Message at {{ message.date }}:</em> '{{ message.text }}'</p>
-        </div>
-      </template>
-      <section class="form">
-        <div class="field">
-          <div class="control">
-            <input v-model="form.chatId" class="message-input" type="text" placeholder="Type a chad id here">
-            <input v-model="form.textMessage" class="message-input" type="text" placeholder="Type a message here">
-            <button class="dark-bg text-white submit-button" @click.prevent="sendMessage">Submit</button>
-          </div>
-        </div>
-      </section> -->
   </div>
 </template>
  
@@ -177,10 +210,29 @@ import axios from 'axios'
 import Loader from '../components/loader/loader.vue'
 import ResponseDialog from "../components/responseDialog/responseDialog.vue"
 
+
+import { required, digits, max } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+setInteractionMode('eager')
+extend('digits', {
+  ...digits,
+  message: '{_field_} needs to be {length} digits. ({_value_})',
+})
+extend('required', {
+  ...required,
+  message: '{_field_} can not be empty',
+})
+extend('max', {
+  ...max,
+  message: '{_field_} may not be greater than {length} characters',
+})
+
 export default {
   components: {
     Loader,
-    ResponseDialog
+    ResponseDialog,
+    ValidationProvider,
+    ValidationObserver,
   },
   data() {
     return {
@@ -199,6 +251,7 @@ export default {
         dateTimeFormat: { year: 'numeric', month: 'numeric', day: 'numeric', hour:"numeric", minute:"numeric", second:"numeric", hour12: false }
       },
       isOpenChat: false,
+      isOpenLeaveRequest: false,
       selectedChat: {
         chatId: "",
         chatName: "",
@@ -207,6 +260,10 @@ export default {
       addNewChat: {
         display: false,
         chatName: "",
+      },
+      renameChat: {
+        display: false,
+        newChatName: "",
       },
       messageOptions: {
         textMessageId: 0,
@@ -243,6 +300,7 @@ export default {
     },
 
     async clickToChat(dataChat) {
+      this.isOpenChat = false
       this.selectedChatLoader = true
       await this.loadMessages(dataChat)
     },
@@ -252,13 +310,17 @@ export default {
       await axios.post(store.getters.URLS.API_URL + "chat/create_new_chat?chatName=" + this.addNewChat.chatName)
       .then(async () => {
         await this.getChatsList()
+        this.closeAddNewChat()        
       }).catch(() => {
         router.push({ name: "Error_500"})
       }).finally(() => this.loader = false);
     },
 
     openAddNewChat() { this.addNewChat.display = true },
-    closeAddNewChat() { this.addNewChat.display = false },
+    closeAddNewChat() { 
+      this.addNewChat.display = false 
+      this.addNewChat.chatName = ""
+    },
 
     openChatMethods() { this.chatOptions.chatMethods = true },
     closeChatMethods() { this.chatOptions.chatMethods = false },
@@ -268,14 +330,47 @@ export default {
     // TODO: create menu bar with search user and with function of invite new user to the chat
     showInviteUserMenu() { },
 
-    // TODO: create menu bar with search user and with function of delete from this chat
-    showDeleteUserMenu() { },
+    showRenameChatMenu() {
+      this.renameChat.display = true
+    },
 
-    // TODO: create a request to delete this chat
-    // after deleting remove from this chat list 
-    deleteChat() { },
+    // TODO: implemented websocket after rename chat
+    // TODO: implemented send event message about rename chat
+    async updateChatName() {
+      await axios.post(store.getters.URLS.API_URL + "chat/update_chat_name?chatId=" + this.selectedChat.chatId + "&newName=" + this.chatOptions.newChatName)
+      .then(() => {
+        const index = this.listChats.findIndex(l => l.chat.Id === this.selectedChat.chatId)
+        this.listChats[index].chat.Name = this.renameChat.newChatName
+        this.selectedChat.chatName = this.renameChat.newChatName
+        this.closeRenameChatMenu()
+      }).catch(error => {
+        this.$refs.responseDialog.showErrorResponse(error)
+      });
+    },
 
-    // TODO: implemented WebSocket with sending
+    closeRenameChatMenu() {
+      this.renameChat.display = false
+      this.renameChat.newChatName = ""
+    },
+
+    showLeaveRequest() {
+      this.isOpenLeaveRequest = true
+    },
+
+    async leaveChat() {
+      await axios.delete(store.getters.URLS.API_URL + "chat/leave_chat?chatId=" + this.selectedChat.chatId)
+      .then(() => {
+        //TODO: delete chat from UI
+        this.closeLeaveRequest()
+      }).catch(error => {
+        this.$refs.responseDialog.showErrorResponse(error)
+      });
+    },
+
+    closeLeaveRequest() {
+      this.isOpenLeaveRequest = false
+    },
+
     async sendMessage() { 
       await axios.post(store.getters.URLS.API_URL + "chat/send_message?chatId=" + this.selectedChat.chatId + "&textMessage=" + this.messageOptions.textMessage)
       .then().catch(error => {
@@ -312,12 +407,11 @@ export default {
 
       this.connectToSignalR();
       this.connection.on('RefreshMessage', (data) => {
-        debugger;
         var newMessage = { id: data.value.messageId, date: data.value.date, text: data.value.text, isCurrentUserMessage: false }
         const index = this.listChats.findIndex(l => l.chat.Id === data.value.chatId)
         this.listChats[index].listMessages.push(newMessage)
-        this.listChats[index].lastMessage.text = this.messageOptions.textMessage
-        this.listChats[index].lastMessage.dateSend = (new Date()).toLocaleString('en-ZA', this.dateTimeFormat)
+        this.listChats[index].lastMessage.text = newMessage.text
+        this.listChats[index].lastMessage.dateSend = newMessage.date
         this.scrollingChat()
       })
       // TODO: implemented online status
@@ -352,7 +446,7 @@ export default {
     filteredChatList() {
       return this.listChats.filter(dataChat => {
         return dataChat.chat.Name.toLowerCase().includes(this.chatOptions.searchChat.toLowerCase());
-      });
+      }).sort((a,b) => new Date(b.lastMessage.dateSend) - new Date(a.lastMessage.dateSend));
     },
   },
 
@@ -361,76 +455,6 @@ export default {
   }
 }
 
-// Exapmle used web socket
-
-// export default { 
-//   data() {
-//     return {
-//       messages: [],
-//       form: {
-//         chatId: '',
-//         textMessage: ''
-//       }
-//     }
-//   },
-//   methods: {
-//     async loadMessages() {
-//       try {
-//         let response = await axios.get(store.getters.URLS.API_URL + "messages/getMessages")
-//         console.log(response.data.messages)
-//         this.messages = response.data.messages
-//       } catch (err) {
-//         window.alert(err)
-//         console.log(err)
-//       }
-//     },
-//     initSignalR() {
-//       this.connection = new HubConnectionBuilder()
-//       .withUrl(window.location.origin + '/signalr-hub')
-//       .configureLogging(LogLevel.Information)
-//       .build();
-
-//       this.connection.onclose(() => {
-//         this.connectToSignalR();
-//       })
-//       this.connectToSignalR();
-//       this.connection.on('RefreshMessage', (data) => {
-//         this.messages.push({ text: data.value.text, date: data.value.date })
-//       })
-//       this.connection.on('OnConnectedAsync', (data) => {
-//         this.messages.push({ text: data, date: (new Date()).toLocaleString() })
-//       })
-//       this.connection.on('OnDisconnectedAsync', (data) => {
-//         this.messages.push({ text: data, date: (new Date()).toLocaleString() })
-//       })
-//     },
-//     connectToSignalR() {
-//       this.connection.start().catch(err => {
-//         console.error('Failed to connect with hub', err)
-//         return new Promise((resolve, reject) =>
-//           setTimeout(() => this.connectToSignalR().then(resolve).catch(reject), 5000))
-//       })
-//     },
-//     closeConnectionSR() {
-//       if (!this.connection) return;
-//       this.connection.off('RefreshEvent');
-//       this.connection = null;
-//     },
-//     async sendMessage() {
-//       await axios.post(store.getters.URLS.API_URL + "chat/send_message?chatId=" + this.form.chatId + "&textMessage=" + this.form.textMessage)
-//       .then(request => {
-//         console.log(request)
-//         if (request.status == 200) {
-//           this.form.chatId = '';
-//           this.form.textMessage = '';
-//         }
-//       });
-//     }
-//   },
-//   created() {
-//     this.initSignalR()
-//   }
-// }
 </script>
 <style>
 .container {
@@ -1102,8 +1126,6 @@ button:disabled {
   vertical-align: middle;
   margin: -3px -3px 0 3px;
 }
-
-
 
 #vac-icon-double-checkmark-seen {
   fill: var(--chat-icon-color-checkmark-seen);

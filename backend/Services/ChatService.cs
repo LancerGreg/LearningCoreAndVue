@@ -65,6 +65,12 @@ namespace backend.Services
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
 
+            if (newName == null || newName == "")
+                return new ActionChatResult(ActionStatus.Error, ChatResponse.EmptyValue()).GetActionResult();
+
+            if (newName.Length > 64)
+                return new ActionChatResult(ActionStatus.Error, ChatResponse.LongValue()).GetActionResult();
+
             var chat = dbContext.Chats.FirstOrDefault(_ => _.Id == new Guid(chatId));
             chat.Name = newName;
             dbContext.Entry(chat).State = EntityState.Modified;
@@ -108,6 +114,26 @@ namespace backend.Services
 
             var messages = dbContext.Messages.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)).OrderByDescending(_ => _.DateSend).Select(_ => new { id = _.Id, date = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss"), text = _.Text, isCurrentUserMessage = _.SenderId == user.Id }).OrderBy(_ => _.date);
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult(messages);
+        }
+
+        public async Task<IActionResult> LeaveChat(ClaimsPrincipal curentUser, string chatId)
+        {
+            var user = await _userManager.GetUserAsync(curentUser);
+            if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
+                return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
+
+            var chatBridges = dbContext.ChatBridges.Where(_ => _.ChatId == new Guid(chatId)).ToList();
+
+            dbContext.ChatBridges.Remove(chatBridges.FirstOrDefault(_ => _.UserId == user.Id));
+            if (chatBridges.Count() == 1)
+            {
+                dbContext.Messages.RemoveRange(dbContext.Messages.Where(_ => _.ChatId == new Guid(chatId)));
+                dbContext.Chats.Remove(dbContext.Chats.FirstOrDefault(_ => _.Id == new Guid(chatId)));
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
     }
 }

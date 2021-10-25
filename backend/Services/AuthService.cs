@@ -110,7 +110,7 @@ namespace backend.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
             smtp.SendResetPasswordRequest(email, decodToken);
-            return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success()).GetActionResult();
+            return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Forgot password request send to your email")).GetActionResult();
         }
 
         public async Task<IActionResult> SignUp(bool isValid, SignUpUser modelUser)
@@ -127,7 +127,7 @@ namespace backend.Services
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
                     smtp.SendSignUpRequest(user.Email, decodToken);
-                    return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success()).GetActionResult();
+                    return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Check your email and confirm registration")).GetActionResult();
                 }
                 else
                 {
