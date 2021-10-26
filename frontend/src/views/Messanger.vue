@@ -46,15 +46,13 @@
                   <div class="vac-name-container vac-text-ellipsis">
                     <div class="vac-title-container">
                       <div class="vac-room-name vac-text-ellipsis">{{ dataChat.chat.Name }}</div>
-                      <div class="vac-text-date">{{ dataChat.lastMessage.dateSend }}</div>
                     </div>
                     <div class="vac-text-last">
                       <div class="vac-format-message-wrapper vac-text-ellipsis">
                         <div class="vac-text-ellipsis">
                           <div class="vac-format-container">
-                            <span class="vac-text-ellipsis">
-                              <span>{{ dataChat.lastMessage.text }}</span>
-                            </span>
+                            <div class="vac-text-ellipsis">{{ dataChat.lastMessage.text }}</div>
+                            <div class="vac-text-date">{{ dataChat.lastMessage.dateSend }}</div>
                           </div>
                         </div>
                       </div>
@@ -375,7 +373,9 @@ export default {
     async leaveChat() {
       await axios.delete(store.getters.URLS.API_URL + "chat/leave_chat?chatId=" + this.selectedChat.chatId)
       .then(() => {
-        //TODO: delete chat from UI
+        this.isOpenChat = false
+        const index = this.listChats.findIndex(l => l.chat.Id === this.selectedChat.chatId)
+        this.listChats.splice(index, 1);
         this.closeLeaveRequest()
       }).catch(error => {
         this.$refs.responseDialog.showErrorResponse(error)
@@ -428,6 +428,9 @@ export default {
         this.listChats[index].lastMessage.text = newMessage.text
         this.listChats[index].lastMessage.dateSend = newMessage.date
         this.scrollingChat()
+      })
+      this.connection.on('RefreshChat', (data) => {
+        this.listChats.push(data.value)
       })
       // TODO: implemented online status
       // this.connection.on('OnConnectedAsync', (data) => {
@@ -1126,7 +1129,7 @@ button:disabled {
 }
 
 .vac-format-container {
-  display: inline;
+  display: flex;
 }
 
 .vac-text-timestamp {

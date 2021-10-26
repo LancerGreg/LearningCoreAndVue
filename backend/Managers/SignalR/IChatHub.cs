@@ -12,5 +12,6 @@ namespace backend.Managers.SignalR
     {
         HubCallerContext HubContext();
         Task SendMessage(Message newMessage, IEnumerable<string> usersId);
+        Task AddToChat(string userId, ChatData chatData);
     }
 }

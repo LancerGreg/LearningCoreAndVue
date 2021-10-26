@@ -193,14 +193,9 @@ export default {
         addUser() {
             axios.post(store.getters.URLS.API_URL + "chat/add_new_member?chatId=" + this.chatId + "&memberId=" + this.users[this.editedIndex].Id)
             .then(() => {
-              debugger
+              this.users[this.editedIndex].AlreadyInChat = true
               this.closeDialogAddUser()
-              this.getDataFromApi().then(data => {
-                this.users = data.items;
-                this.totalUsers = data.total;
-              });
             }).catch(() => {
-              this.closeDenie()
               router.push({ name: "Error_500"})
             });
         }

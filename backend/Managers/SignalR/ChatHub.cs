@@ -40,6 +40,11 @@ namespace backend.Managers.SignalR
             }));
         }
 
+        public async Task AddToChat(string userId, ChatData chatData)
+        {
+            await _hubContext.Clients.User(userId).SendAsync("RefreshChat", new JsonResult(chatData));
+        }
+
         // TODO: send OnConnected data only after open first page of this web site
         public override async Task OnConnectedAsync()
         {

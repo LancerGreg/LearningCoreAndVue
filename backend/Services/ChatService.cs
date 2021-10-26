@@ -27,19 +27,19 @@ namespace backend.Services
             _chatHub = chatHub;
         }
 
-        public async Task<IEnumerable<object>> GetChatsByCurrentUser(ClaimsPrincipal curentUser)
+        public async Task<IEnumerable<ChatData>> GetChatsByCurrentUser(ClaimsPrincipal curentUser)
         {
             var user = await _userManager.GetUserAsync(curentUser);
             var chats = dbContext.Chats.Where(_ => dbContext.ChatBridges.Where(cb => cb.UserId == user.Id).Select(cb => cb.ChatId).Contains(_.Id)).AsEnumerable();
             return chats.GroupJoin(dbContext.Messages.AsEnumerable(),
                                    chat => chat.Id,
                                    message => message.ChatId,
-                                   (chat, messages) => new
+                                   (chat, messages) => new ChatData
                                    {
                                        chat = chat, 
                                        lastMessage = messages.Any() 
-                                                     ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new { text = _.Text, dateSend = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss") }).FirstOrDefault()
-                                                     : new { text = "", dateSend = chat.DateCreate.ToString("yyyy/MM/dd, HH:mm:ss") },
+                                                     ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new LastMessage() { text = _.Text, dateSend = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss") }).FirstOrDefault()
+                                                     : new LastMessage() { text = "", dateSend = chat.DateCreate.ToString("yyyy/MM/dd, HH:mm:ss") },
                                        listMessages = new List<Message>(),
                                    }).OrderByDescending(_ => _.lastMessage.dateSend);
         }
@@ -89,6 +89,7 @@ namespace backend.Services
             var newChatBridges = new ChatBridge() { Chat = chat, User = newMember };
             await dbContext.ChatBridges.AddRangeAsync(newChatBridges);
             await dbContext.SaveChangesAsync();
+            await _chatHub.AddToChat(memberId, (await GetChatsByCurrentUser(curentUser)).FirstOrDefault(_ => _.chat.Id == new Guid(chatId)));
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
 
