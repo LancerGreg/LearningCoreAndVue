@@ -14,9 +14,10 @@ namespace backend.Services.Interfaces
         Task<IEnumerable<object>> GetChatsByCurrentUser(ClaimsPrincipal curentUser);
         Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, string chatName);
         Task<IActionResult> UpdateChatName(ClaimsPrincipal curentUser, string chatId, string newName);
-        Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, List<string> friendsId);
+        Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, string memberId);
         Task<IActionResult> SendMessage(ClaimsPrincipal curentUser, string chatId, string textMessage);
         Task<IActionResult> GetMessages(ClaimsPrincipal curentUser, string chatId);
         Task<IActionResult> LeaveChat(ClaimsPrincipal curentUser, string chatId);
+        Task<IActionResult> GetUsersByName(ClaimsPrincipal curentUser, string chatId, string fullName);
     }
 }

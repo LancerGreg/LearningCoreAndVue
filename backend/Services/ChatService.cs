@@ -78,14 +78,15 @@ namespace backend.Services
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
 
-        public async Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, List<string> friendsId)
+        public async Task<IActionResult> AddNewMembers(ClaimsPrincipal curentUser, string chatId, string memberId)
         {
             var user = await _userManager.GetUserAsync(curentUser);
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
 
             var chat = dbContext.Chats.FirstOrDefault(_ => _.Id == new Guid(chatId));
-            var newChatBridges = dbContext.Users.Where(_ => friendsId.Contains(_.Id)).Select(_ => new ChatBridge() { User = _, Chat = chat });
+            var newMember = dbContext.Users.FirstOrDefault(_ => _.Id == memberId);
+            var newChatBridges = new ChatBridge() { Chat = chat, User = newMember };
             await dbContext.ChatBridges.AddRangeAsync(newChatBridges);
             await dbContext.SaveChangesAsync();
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
@@ -134,6 +135,22 @@ namespace backend.Services
             await dbContext.SaveChangesAsync();
 
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
+        }
+
+        public async Task<IActionResult> GetUsersByName(ClaimsPrincipal curentUser, string chatId, string fullName)
+        {
+            var user = await _userManager.GetUserAsync(curentUser);
+            if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
+                return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
+
+            var users = dbContext.Users.AsEnumerable().Where(_ => _.Id != user.Id && (_.FullName.ToLower().Contains(fullName.ToLower())));
+            var friends = (from u in users
+                          join fs in dbContext.Friendships.AsEnumerable().Where(_ => _.AppUserId == user.Id) on u.Id equals fs.FriendId
+                          join cb in dbContext.ChatBridges.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)) on u.Id equals cb.UserId into _cb from subcb in _cb.DefaultIfEmpty()
+                          select new { Id = u.Id, FullName = u.FullName, AlreadyInChat = subcb == null ? false : true })
+                          .OrderBy(_ => _.AlreadyInChat).ThenBy(_ => _.FullName);
+
+            return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult(friends);
         }
     }
 }

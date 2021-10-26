@@ -89,16 +89,23 @@
                 <div v-if="chatOptions.chatMethods" class="vac-menu-options">
                   <div class="vac-menu-list">
                     <div>
-                      <div @click="showInviteUserMenu" class="vac-menu-item">Invite User</div>
+                      <div @click="showAddMembersMenu" class="vac-menu-item">Add Members</div>
                     </div>
                     <div>
-                      <div @click="showRenameChatMenu" class="vac-menu-item">Rename chat</div>
+                      <div @click="showRenameChatMenu" class="vac-menu-item">Rename Chat</div>
                     </div>
                     <div>
                       <div @click="showLeaveRequest" class="vac-menu-item">Leave Chat</div>
                     </div>
                   </div>
                 </div>
+                <v-dialog v-model="isOpenAddMembers" transition="dialog-bottom-transition" max-width="1200">
+                  <v-card>
+                    <v-toolbar v-bind:color="'#1976d2'" dark>Add members</v-toolbar>
+                    <v-card-text></v-card-text>
+                    <AddMembers :chatId="selectedChat.chatId" />
+                  </v-card>
+                </v-dialog>
                 <v-dialog v-model="renameChat.display" transition="dialog-bottom-transition" max-width="600">
                   <v-card>
                     <v-toolbar v-bind:color="'#1976d2'" dark>Rename chat</v-toolbar>
@@ -209,6 +216,7 @@ import axios from 'axios'
 
 import Loader from '../components/loader/loader.vue'
 import ResponseDialog from "../components/responseDialog/responseDialog.vue"
+import AddMembers from '../components/messanger/addMembers.vue'
 
 
 import { required, digits, max } from 'vee-validate/dist/rules'
@@ -233,6 +241,7 @@ export default {
     ResponseDialog,
     ValidationProvider,
     ValidationObserver,
+    AddMembers
   },
   data() {
     return {
@@ -251,6 +260,7 @@ export default {
         dateTimeFormat: { year: 'numeric', month: 'numeric', day: 'numeric', hour:"numeric", minute:"numeric", second:"numeric", hour12: false }
       },
       isOpenChat: false,
+      isOpenAddMembers: false,
       isOpenLeaveRequest: false,
       selectedChat: {
         chatId: "",
@@ -327,8 +337,13 @@ export default {
 
     expandChat() { this.chatOptions.expandChat = !this.chatOptions.expandChat },
 
-    // TODO: create menu bar with search user and with function of invite new user to the chat
-    showInviteUserMenu() { },
+    showAddMembersMenu() { 
+      this.isOpenAddMembers = true
+    },
+
+    closeAddMembersMenu() { 
+      this.isOpenAddMembers = false
+    },
 
     showRenameChatMenu() {
       this.renameChat.display = true

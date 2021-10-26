@@ -28,6 +28,10 @@ namespace backend.Controllers
         public async Task<IActionResult> GetMessageChunk(string chatId) =>
             await _chatService.GetMessages(User, chatId);
 
+        [HttpGet("get_users_by_name")]
+        public async Task<IActionResult> GetUsersByName(string chatId, string fullName) =>
+            await _chatService.GetUsersByName(User, chatId, fullName ?? "");
+
         [HttpPost("create_new_chat")]
         public async Task<IActionResult> CreateNewChat(string chatName) =>
             await _chatService.CreateNewChat(User, chatName);
@@ -36,9 +40,9 @@ namespace backend.Controllers
         public async Task<IActionResult> UpdateChatName(string chatId, string newName) =>
             await _chatService.UpdateChatName(User, chatId, newName);
 
-        [HttpPost("add_new_members")]
-        public async Task<IActionResult> AddNewMembers(string chatId, List<string> friendsId) =>
-            await _chatService.AddNewMembers(User, chatId, friendsId);
+        [HttpPost("add_new_member")]
+        public async Task<IActionResult> AddNewMembers(string chatId, string memberId) =>
+            await _chatService.AddNewMembers(User, chatId, memberId);
 
         [HttpPost("send_message")]
         public async Task<IActionResult> SendMessage(string chatId, string textMessage) =>
