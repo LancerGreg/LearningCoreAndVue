@@ -75,6 +75,7 @@ namespace backend.Services
             chat.Name = newName;
             dbContext.Entry(chat).State = EntityState.Modified;
             await dbContext.SaveChangesAsync();
+            await _chatHub.RenameChatName(dbContext.ChatBridges.Where(_ => _.ChatId == new Guid(chatId)).Select(_ => _.UserId), chat);
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult();
         }
 

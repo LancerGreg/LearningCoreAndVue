@@ -45,6 +45,15 @@ namespace backend.Managers.SignalR
             await _hubContext.Clients.User(userId).SendAsync("RefreshChat", new JsonResult(chatData));
         }
 
+        public async Task RenameChatName(IEnumerable<string> usersId, Chat chat)
+        {
+            await _hubContext.Clients.Users(usersId).SendAsync("RefreshChatName", new JsonResult(new
+            {
+                chatId = chat.Id,
+                chatName = chat.Name
+            }));
+        }
+
         // TODO: send OnConnected data only after open first page of this web site
         public override async Task OnConnectedAsync()
         {

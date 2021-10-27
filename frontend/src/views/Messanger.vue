@@ -347,10 +347,8 @@ export default {
       this.renameChat.display = true
     },
 
-    // TODO: implemented websocket after rename chat
-    // TODO: implemented send event message about rename chat
     async updateChatName() {
-      await axios.post(store.getters.URLS.API_URL + "chat/update_chat_name?chatId=" + this.selectedChat.chatId + "&newName=" + this.chatOptions.newChatName)
+      await axios.post(store.getters.URLS.API_URL + "chat/update_chat_name?chatId=" + this.selectedChat.chatId + "&newName=" + this.renameChat.newChatName)
       .then(() => {
         const index = this.listChats.findIndex(l => l.chat.Id === this.selectedChat.chatId)
         this.listChats[index].chat.Name = this.renameChat.newChatName
@@ -431,6 +429,10 @@ export default {
       })
       this.connection.on('RefreshChat', (data) => {
         this.listChats.push(data.value)
+      })
+      this.connection.on('RefreshChatName', (data) => {
+        const index = this.listChats.findIndex(l => l.chat.Id === data.value.chatId)
+        this.listChats[index].chat.Name = data.value.chatName
       })
       // TODO: implemented online status
       // this.connection.on('OnConnectedAsync', (data) => {
