@@ -20,13 +20,11 @@ namespace backend.Helpers
         private readonly string pass = "";
 
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor context;
         private readonly SmtpClient client;
 
-        public SMTP(IConfiguration configuration, IHttpContextAccessor context)
+        public SMTP(IConfiguration configuration)
         {
             _configuration = configuration;
-            this.context = context;
             appName = _configuration["AppSettings:AppName"];
             appLocalURL = _configuration["AppSettings:AppLocalURL"];
             smtpServer = _configuration["CredentialsSMTP:Server"];

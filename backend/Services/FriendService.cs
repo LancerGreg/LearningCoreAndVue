@@ -38,9 +38,9 @@ namespace backend.Services
             var user = await _userManager.GetUserAsync(curentUser);
 
             var invites = dbContext.Invites.Where(_ => _.SenderId == user.Id);
-            var friendShip = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
+            var friendships = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
 
-            return dbContext.Users.Where(_ => _.Id != user.Id && _.Email.ToLower().Contains(userEmail)).Select(_ => new FoundedUser(_) { IsFriend = friendShip.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) });
+            return dbContext.Users.Where(_ => _.Id != user.Id && _.Email.ToLower().Contains(userEmail)).Select(_ => new FoundedUser(_) { IsFriend = friendships.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) });
         }
 
         public async Task<(IEnumerable<FoundedUser> bestMatch, IEnumerable<FoundedUser> otherMatch)> GetUsersByName(ClaimsPrincipal curentUser, string firstName, string lastName)
@@ -50,11 +50,11 @@ namespace backend.Services
             var bestMatch = users.Where(_ => _.FirstName.ToLower().Contains(firstName) && _.LastName.ToLower().Contains(lastName)).OrderBy(_ => _.FirstName).ThenBy(_ => _.LastName);
             var otherMatch = users.Where(_ => !(bestMatch.Any(bm => bm.Id == _.Id))).OrderBy(_ => _.FirstName).ThenBy(_ => _.LastName);
             var invites = dbContext.Invites.Where(_ => _.SenderId == user.Id);
-            var friendShip = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
+            var friendships = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
 
             return (
-                bestMatch.Select(_ => new FoundedUser(_) { IsFriend = friendShip.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) }),
-                otherMatch.Select(_ => new FoundedUser(_) { IsFriend = friendShip.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) })
+                bestMatch.Select(_ => new FoundedUser(_) { IsFriend = friendships.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) }),
+                otherMatch.Select(_ => new FoundedUser(_) { IsFriend = friendships.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) })
             );
         }
 
@@ -63,9 +63,9 @@ namespace backend.Services
             var user = await _userManager.GetUserAsync(curentUser);
 
             var invites = dbContext.Invites.Where(_ => _.SenderId == user.Id);
-            var friendShip = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
+            var friendships = dbContext.Friendships.Where(_ => _.AppUserId == user.Id);
 
-            return dbContext.Users.Where(_ => _.Id != user.Id && _.PhoneNumber.Contains(userPhone.Trim())).Select(_ => new FoundedUser(_) { IsFriend = friendShip.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) });
+            return dbContext.Users.Where(_ => _.Id != user.Id && _.PhoneNumber.Contains(userPhone.Trim())).Select(_ => new FoundedUser(_) { IsFriend = friendships.Any(fs => fs.FriendId == _.Id), HaveInvite = invites.Any(i => i.RecipientId == _.Id) });
         }
 
         public async Task<object> GetGraphData(ClaimsPrincipal curentUser, int range, bool simplifiedLink)

@@ -27,13 +27,13 @@ namespace backend.Services
     public class AccountService : AppDbRepository, IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IHttpContextAccessor context;
+        private readonly IHttpContextAccessor _context;
         private readonly IAuthService _authService;
 
         public AccountService(AppDbContext dbContext, UserManager<AppUser> userManager, IHttpContextAccessor context, IAuthService authService) : base(dbContext)
         {
             _userManager = userManager;
-            this.context = context;
+            _context = context;
             _authService = authService;
         }
 
@@ -49,7 +49,7 @@ namespace backend.Services
             user.FirstName = userProfile.FirstName;
             user.LastName = userProfile.LastName;
 
-            if ((user.PhoneNumber != userProfile.Phone) || !user.PhoneNumberConfirmed)
+            if (user.PhoneNumber != userProfile.Phone)
             {
                 try
                 {
@@ -65,8 +65,8 @@ namespace backend.Services
 
             if (userProfile.Password != null && userProfile.Password != "")
             {
-                var _passwordValidator = context.HttpContext.RequestServices.GetService(typeof(IPasswordValidator<AppUser>)) as IPasswordValidator<AppUser>;
-                var _passwordHasher = context.HttpContext.RequestServices.GetService(typeof(IPasswordHasher<AppUser>)) as IPasswordHasher<AppUser>;
+                var _passwordValidator = _context.HttpContext.RequestServices.GetService(typeof(IPasswordValidator<AppUser>)) as IPasswordValidator<AppUser>;
+                var _passwordHasher = _context.HttpContext.RequestServices.GetService(typeof(IPasswordHasher<AppUser>)) as IPasswordHasher<AppUser>;
 
                 IdentityResult result = await _passwordValidator.ValidateAsync(_userManager, user, userProfile.Password);
 

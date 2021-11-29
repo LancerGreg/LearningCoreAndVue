@@ -1,7 +1,9 @@
-﻿using backend.Services;
+﻿using backend.Middlewares.Log;
+using backend.Services;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -16,12 +18,13 @@ namespace backend.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
-        //private readonly ILogger _logger;
+        private readonly ILogger<LogURLMiddleware> _logger;
 
-        public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
+        public JwtMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<LogURLMiddleware> logger)
         {
             _next = next;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context, IAccountService accountService)
@@ -55,9 +58,9 @@ namespace backend.Middlewares
 
                 context.Items["User"] = accountService.GetUser(userId);
             }
-            catch
+            catch(Exception ex)
             {
-                // todo: need to add logger
+                _logger.Log(LogLevel.Critical, ex.Message, ex);
             }
         }
     }

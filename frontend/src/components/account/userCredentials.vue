@@ -89,6 +89,7 @@ import ResponseDialog from "../responseDialog/responseDialog.vue"
 
 import { required, min, max  } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+
 setInteractionMode('eager')
 extend('required', {
   ...required,

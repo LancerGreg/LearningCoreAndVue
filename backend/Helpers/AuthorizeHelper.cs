@@ -15,31 +15,31 @@ namespace backend.Helpers
     public class AuthorizeHelper : AppDbRepository, IAuthorizeHelper
     {
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor context;
+        private readonly IHttpContextAccessor _context;
 
         public AuthorizeHelper(AppDbContext dbContext, IConfiguration configuration, IHttpContextAccessor context) : base(dbContext)
         {
             _configuration = configuration;
-            this.context = context;
+            _context = context;
         }
 
         public bool OnAuthorization()
         {
-            var contain = context.HttpContext.Session.Keys.Contains("AppUser");
+            var contain = _context.HttpContext.Session.Keys.Contains("AppUser");
             if (contain)
             {
-                var userContext = context.HttpContext.Session.Get<AuthorizationUser>("AppUser");
+                var userContext = _context.HttpContext.Session.Get<AuthorizationUser>("AppUser");
                 return !(userContext.Email == null || userContext.Email == "");
             }
-            else
-                return contain;
+            
+            return contain;
         }
 
         public void Authorization(string email) =>
-            context.HttpContext.Session.Set("AppUser", new AuthorizationUser(email));
+            _context.HttpContext.Session.Set("AppUser", new AuthorizationUser(email));
 
         public void LogoutAuthorization() =>
-            context.HttpContext.Session.Remove("AppUser");
+            _context.HttpContext.Session.Remove("AppUser");
     }
 
     public class AuthorizationUser

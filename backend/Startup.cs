@@ -73,7 +73,6 @@ namespace backend
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Friendes's Tree", Version = "v1" });
             });
 
-            //Enable CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("VueCorsPolicy", builder =>
@@ -86,7 +85,6 @@ namespace backend
                 });
             });
 
-            //JSON Serializer
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
@@ -144,12 +142,6 @@ namespace backend
             { 
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/signalr-hub");
-            });
-
-            app.UseDirectoryBrowser(new DirectoryBrowserOptions
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images")),
-                RequestPath = "/images"
             });
 
             app.UseSwagger();

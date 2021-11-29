@@ -83,9 +83,9 @@ namespace backend.Services
             if (decide == Decide.Accept)
             {
                 var senderFriendship = new Friendship() { AppUserId = invite.SenderId, FriendId = invite.RecipientId };
-                var RecipientFriendship = new Friendship() { AppUserId = invite.RecipientId, FriendId = invite.SenderId };
+                var recipientFriendship = new Friendship() { AppUserId = invite.RecipientId, FriendId = invite.SenderId };
                 dbContext.Friendships.Add(senderFriendship);
-                dbContext.Friendships.Add(RecipientFriendship);
+                dbContext.Friendships.Add(recipientFriendship);
             }
 
             dbContext.SaveChanges();

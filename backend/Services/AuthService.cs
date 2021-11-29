@@ -27,7 +27,7 @@ namespace backend.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IAuthorizeHelper _authorize;
-        private readonly ISMTP smtp;
+        private readonly ISMTP _smtp;
 
         public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeHelper authorize, ISMTP smtp) : base(dbContext)
         {
@@ -35,7 +35,7 @@ namespace backend.Services
             _userManager = userManager;
             _signInManager = signInManager;
             _authorize = authorize;
-            this.smtp = smtp;
+            _smtp = smtp;
         }
 
         public async Task<IActionResult> SignIn(bool isValid, SignInUser modelUser)
@@ -109,7 +109,7 @@ namespace backend.Services
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
-            smtp.SendResetPasswordRequest(email, decodToken);
+            _smtp.SendResetPasswordRequest(email, decodToken);
             return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Forgot password request send to your email")).GetActionResult();
         }
 
@@ -126,7 +126,7 @@ namespace backend.Services
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
-                    smtp.SendSignUpRequest(user.Email, decodToken);
+                    _smtp.SendSignUpRequest(user.Email, decodToken);
                     return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Check your email and confirm registration")).GetActionResult();
                 }
                 else

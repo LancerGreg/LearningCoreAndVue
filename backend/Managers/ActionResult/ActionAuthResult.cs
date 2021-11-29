@@ -14,11 +14,6 @@ namespace backend.Managers.ActionResult
         {
 
         }
-
-        public override IActionResult GetActionResult()
-        {
-            return new ObjectResult(_response) { StatusCode = _response.StatusCode };
-        }
     }
 
     public class ActionSignInResult : ActionAuthResult
@@ -50,11 +45,6 @@ namespace backend.Managers.ActionResult
         public ActionIdentityResult(ActionStatus actionStatus, Response response) : base(actionStatus, response)
         {
             
-        }
-
-        public override IActionResult GetActionResult()
-        {
-            return new ObjectResult(_response) { StatusCode = _response.StatusCode };
         }
     }
 }

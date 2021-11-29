@@ -13,10 +13,5 @@ namespace backend.Managers.ActionResult
         {
 
         }
-
-        public override IActionResult GetActionResult()
-        {
-            return new ObjectResult(_response) { StatusCode = _response.StatusCode };
-        }
     }
 }
