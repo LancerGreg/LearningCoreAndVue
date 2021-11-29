@@ -1,32 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using backend.Repositories;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using backend.Models;
-using Microsoft.AspNetCore.Identity;
-using backend.Services;
-using Microsoft.OpenApi.Models;
 using backend.Helpers;
 using backend.Helpers.Interfaces;
-using backend.Services.Interfaces;
-using Twilio;
 using backend.Managers;
+using backend.Managers.SignalR;
 using backend.Middlewares;
 using backend.Middlewares.Log;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
-using backend.Managers.SignalR;
+using backend.Models;
+using backend.Repositories;
+using backend.Services;
+using backend.Services.Interfaces;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
+using Twilio;
 
 namespace backend
 {
@@ -47,7 +40,6 @@ namespace backend
             services.AddTransient<IAuthorizeHelper, AuthorizeHelper>();
             services.AddTransient<IFriendService, FriendService>();
             services.AddTransient<IInviteService, InviteService>();
-            services.AddTransient<ITestingService, TestingService>();
             services.AddTransient<IErrorHelper, ErrorHelper>();
             services.AddTransient<IChatService, ChatService>();
             services.AddTransient<IChatHub, ChatHub>();
@@ -138,8 +130,8 @@ namespace backend
 
             app.UseMiddleware<JwtMiddleware>();
             app.UseLogUrl();
-            app.UseEndpoints(endpoints => 
-            { 
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/signalr-hub");
             });

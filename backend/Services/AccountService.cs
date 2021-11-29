@@ -1,26 +1,16 @@
-﻿using backend.Managers;
+﻿using backend.Managers.ActionResult;
+using backend.Managers.ActionResult.Responses;
 using backend.Models;
+using backend.Repositories;
+using backend.Resources;
+using backend.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using backend.Repositories;
-using backend.Helpers;
-using Microsoft.Extensions.Configuration;
-using System.Net;
-using backend.Helpers.Interfaces;
-using Microsoft.AspNetCore.Http;
-using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Web;
-using backend.Services.Interfaces;
-using backend.Managers.ActionResult;
-using Microsoft.AspNetCore.Mvc;
-using backend.Managers.ActionResult.Responses;
 
 namespace backend.Services
 {
@@ -30,7 +20,8 @@ namespace backend.Services
         private readonly IHttpContextAccessor _context;
         private readonly IAuthService _authService;
 
-        public AccountService(AppDbContext dbContext, UserManager<AppUser> userManager, IHttpContextAccessor context, IAuthService authService) : base(dbContext)
+        public AccountService(AppDbContext dbContext, UserManager<AppUser> userManager, 
+            IHttpContextAccessor context, IAuthService authService) : base(dbContext)
         {
             _userManager = userManager;
             _context = context;
@@ -54,12 +45,12 @@ namespace backend.Services
                 try
                 {
                     await _authService.ResetNumberPhone(claimsPrincipal, userProfile.Phone);
-                    message = "ResetNumberPhoneTokenSend";
+                    message = ActionResultMessage.SendPhoneToken;
                 }
                 catch (Exception e)
                 {
                     return new ActionAuthResult(ActionStatus.Error, AccountResponse.UnsucceededPhone(e.Message)).GetActionResult();
-                }               
+                }
             }
             user.PhoneNumber = userProfile.Phone;
 

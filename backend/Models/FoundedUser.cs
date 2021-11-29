@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace backend.Models
+﻿namespace backend.Models
 {
     public class FoundedUser
     {
         public string UserId { get; set; }
-        public string FullName => FirstName == "" && LastName == "" ? "No Name" : FirstName + " " + LastName;
+        public string FullName => FirstName == "" && LastName == "" ? "No Name" : $"{FirstName} {LastName}";
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

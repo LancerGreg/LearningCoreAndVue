@@ -1,10 +1,5 @@
 ﻿using backend.Managers.ActionResult.Responses;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace backend.Managers.ActionResult
 {
@@ -20,7 +15,8 @@ namespace backend.Managers.ActionResult
     {
         private Microsoft.AspNetCore.Identity.SignInResult _signInResult { get; set; }
 
-        public ActionSignInResult(ActionStatus actionStatus, Response response, Microsoft.AspNetCore.Identity.SignInResult signInResult) : base(actionStatus, response)
+        public ActionSignInResult(ActionStatus actionStatus, Response response, 
+            Microsoft.AspNetCore.Identity.SignInResult signInResult) : base(actionStatus, response)
         {
             _signInResult = signInResult;
         }
@@ -44,7 +40,7 @@ namespace backend.Managers.ActionResult
     {
         public ActionIdentityResult(ActionStatus actionStatus, Response response) : base(actionStatus, response)
         {
-            
+
         }
     }
 }

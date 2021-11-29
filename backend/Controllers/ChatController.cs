@@ -1,10 +1,5 @@
-﻿using backend.Managers.ActionResult;
-using backend.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace backend.Controllers

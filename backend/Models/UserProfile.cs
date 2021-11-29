@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace backend.Models
+﻿namespace backend.Models
 {
     public class UserProfile
     {
@@ -15,7 +10,7 @@ namespace backend.Models
         public string Password { get; set; }
 
         public UserProfile() { }
-        public UserProfile(AppUser user) 
+        public UserProfile(AppUser user)
         {
             Id = user.Id != null ? user.Id : "";
             FirstName = user.FirstName != null ? user.FirstName : "";

@@ -1,26 +1,24 @@
 ﻿using backend.Helpers.Interfaces;
 using backend.Models;
-using backend.Repositories;
+using backend.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace backend.Managers.SignalR
 {
     [Authorize]
     public class ChatHub : Hub, IChatHub
-    {        
+    {
         private readonly UserManager<AppUser> _userManager;
         private readonly IAuthorizeHelper _authorize;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatHub (UserManager<AppUser> userManager, IAuthorizeHelper authorize, IHubContext<ChatHub> hubContext)
+        public ChatHub(UserManager<AppUser> userManager, IAuthorizeHelper authorize, IHubContext<ChatHub> hubContext)
         {
             _userManager = userManager;
             _authorize = authorize;
@@ -36,7 +34,7 @@ namespace backend.Managers.SignalR
                 chatId = newMessage.ChatId,
                 messageId = newMessage.Id,
                 text = newMessage.Text,
-                date = newMessage.DateSend.ToString("yyyy/MM/dd, HH:mm:ss"),
+                date = newMessage.DateSend.ToString(DateFormat.FullShort),
             }));
         }
 

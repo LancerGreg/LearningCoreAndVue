@@ -1,12 +1,10 @@
 ﻿using backend.Middlewares.Log;
-using backend.Services;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
@@ -58,7 +56,7 @@ namespace backend.Middlewares
 
                 context.Items["User"] = accountService.GetUser(userId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Critical, ex.Message, ex);
             }

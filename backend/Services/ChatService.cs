@@ -3,10 +3,10 @@ using backend.Managers.ActionResult.Responses;
 using backend.Managers.SignalR;
 using backend.Models;
 using backend.Repositories;
+using backend.Resources;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -37,10 +37,14 @@ namespace backend.Services
                 message => message.ChatId,
                 (chat, messages) => new ChatData
                 {
-                    chat = chat, 
-                    lastMessage = messages.Any() 
-                        ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new LastMessage() { text = _.Text, dateSend = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss") }).FirstOrDefault()
-                        : new LastMessage() { text = "", dateSend = chat.DateCreate.ToString("yyyy/MM/dd, HH:mm:ss") },
+                    chat = chat,
+                    lastMessage = messages.Any()
+                        ? messages.OrderByDescending(_ => _.DateSend).Select(_ => new LastMessage() 
+                        { 
+                            text = _.Text, 
+                            dateSend = _.DateSend.ToString(DateFormat.FullShort) 
+                        }).FirstOrDefault()
+                        : new LastMessage() { text = "", dateSend = chat.DateCreate.ToString(DateFormat.FullShort) },
                     listMessages = new List<Message>(),
                 }).OrderByDescending(_ => _.lastMessage.dateSend);
         }
@@ -48,10 +52,10 @@ namespace backend.Services
         public async Task<IActionResult> CreateNewChat(ClaimsPrincipal curentUser, string chatName)
         {
             var user = await _userManager.GetUserAsync(curentUser);
-            var newChat = new Chat() 
-            { 
-                Name = chatName == null || chatName.Trim() == "" ? "Chat by " + user.FirstName : chatName,
-                DateCreate = DateTime.Now 
+            var newChat = new Chat()
+            {
+                Name = chatName == null || chatName.Trim() == "" ? ChatNames.GetNewChatName(user.FirstName) : chatName,
+                DateCreate = DateTime.Now
             };
             var newChatBridge = new ChatBridge() { User = user, Chat = newChat };
             await dbContext.Chats.AddAsync(newChat);
@@ -117,7 +121,15 @@ namespace backend.Services
             if (!dbContext.ChatBridges.Any(_ => _.UserId == user.Id && _.ChatId == new Guid(chatId)))
                 return new ActionChatResult(ActionStatus.Error, ChatResponse.Forbidden()).GetActionResult();
 
-            var messages = dbContext.Messages.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)).OrderByDescending(_ => _.DateSend).Select(_ => new { id = _.Id, date = _.DateSend.ToString("yyyy/MM/dd, HH:mm:ss"), text = _.Text, isCurrentUserMessage = _.SenderId == user.Id }).OrderBy(_ => _.date);
+            var messages = dbContext.Messages.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)).OrderByDescending(_ => _.DateSend)
+                .Select(_ => new 
+                { 
+                    id = _.Id, 
+                    date = _.DateSend.ToString(DateFormat.FullShort), 
+                    text = _.Text, 
+                    isCurrentUserMessage = _.SenderId == user.Id 
+                }).OrderBy(_ => _.date);
+
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult(messages);
         }
 
@@ -151,9 +163,10 @@ namespace backend.Services
 
             // this LINQ query is hard to write in lambda performance for multi join
             var friends = (from u in users
-                          join fs in dbContext.Friendships.AsEnumerable().Where(_ => _.AppUserId == user.Id) on u.Id equals fs.FriendId
-                          join cb in dbContext.ChatBridges.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)) on u.Id equals cb.UserId into _cb from subcb in _cb.DefaultIfEmpty()
-                          select new { Id = u.Id, FullName = u.FullName, AlreadyInChat = subcb != null })
+                           join fs in dbContext.Friendships.AsEnumerable().Where(_ => _.AppUserId == user.Id) on u.Id equals fs.FriendId
+                           join cb in dbContext.ChatBridges.AsEnumerable().Where(_ => _.ChatId == new Guid(chatId)) on u.Id equals cb.UserId into _cb
+                           from subcb in _cb.DefaultIfEmpty()
+                           select new { Id = u.Id, FullName = u.FullName, AlreadyInChat = subcb != null })
                           .OrderBy(_ => _.AlreadyInChat).ThenBy(_ => _.FullName);
 
             return new ActionChatResult(ActionStatus.Success, ChatResponse.Success()).GetActionResult(friends);

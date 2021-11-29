@@ -1,15 +1,7 @@
-﻿using backend.Helpers.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
-using System.Security.Policy;
-using System.Threading.Tasks;
 
-namespace backend.Helpers
+namespace backend.Managers
 {
     public class SMTP : ISMTP
     {
@@ -64,4 +56,3 @@ namespace backend.Helpers
         }
     }
 }
- 

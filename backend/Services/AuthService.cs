@@ -1,23 +1,21 @@
-﻿using backend.Helpers. Interfaces;
+﻿using backend.Helpers;
+using backend.Helpers.Interfaces;
 using backend.Managers;
+using backend.Managers.ActionResult;
+using backend.Managers.ActionResult.Responses;
 using backend.Models;
 using backend.Repositories;
+using backend.Resources;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
-using backend.Helpers;
-using Twilio.AspNet.Common;
-using Twilio.TwiML;
-using backend.Managers.ActionResult;
-using Microsoft.AspNetCore.Mvc;
-using backend.Managers.ActionResult.Responses;
 
 namespace backend.Services
 {
@@ -29,7 +27,8 @@ namespace backend.Services
         private readonly IAuthorizeHelper _authorize;
         private readonly ISMTP _smtp;
 
-        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IAuthorizeHelper authorize, ISMTP smtp) : base(dbContext)
+        public AuthService(IConfiguration configuration, AppDbContext dbContext, UserManager<AppUser> userManager, 
+            SignInManager<AppUser> signInManager, IAuthorizeHelper authorize, ISMTP smtp) : base(dbContext)
         {
             _configuration = configuration;
             _userManager = userManager;
@@ -62,7 +61,8 @@ namespace backend.Services
             if (user == null)
                 return new ActionAuthResult(ActionStatus.Error, AuthResponse.UserNotFound()).GetActionResult();
 
-            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_', '/').Replace('-', '+') + "==";
+            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder
+                .Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_', '/').Replace('-', '+') + "==";
             var result = await _userManager.ConfirmEmailAsync(user, encodeToken);
             if (result.Succeeded)
             {
@@ -88,7 +88,8 @@ namespace backend.Services
             if (user == null)
                 return new ActionAuthResult(ActionStatus.Error, AuthResponse.UserNotFound()).GetActionResult();
 
-            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_', '/').Replace('-', '+');
+            var encodeToken = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder
+                .Encode(token.Split('/').Select(_ => byte.Parse(_)).ToArray()).Replace('_', '/').Replace('-', '+');
             var result = await _userManager.ResetPasswordAsync(user, encodeToken, password);
             if (result.Succeeded)
             {
@@ -110,7 +111,7 @@ namespace backend.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
             _smtp.SendResetPasswordRequest(email, decodToken);
-            return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Forgot password request send to your email")).GetActionResult();
+            return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success(ActionResultMessage.SendForgotPasswordRequest)).GetActionResult();
         }
 
         public async Task<IActionResult> SignUp(bool isValid, SignUpUser modelUser)
@@ -127,7 +128,7 @@ namespace backend.Services
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var decodToken = String.Join("/", Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(token).Select(_ => _.ToString()));
                     _smtp.SendSignUpRequest(user.Email, decodToken);
-                    return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success("Check your email and confirm registration")).GetActionResult();
+                    return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success(ActionResultMessage.EmailConfirm)).GetActionResult();
                 }
                 else
                 {
@@ -147,20 +148,20 @@ namespace backend.Services
             var changePhoneNumberToken = await _userManager.GenerateChangePhoneNumberTokenAsync(await _userManager.GetUserAsync(curentUser), NumberPhone);
 
             var message = MessageResource.Create(
-                body: "\n\nFor comfirm your phone number enter this code:\n\n" + changePhoneNumberToken,
+                body: TwilioMessage.GetEmailComfirmMessage(changePhoneNumberToken),
                 from: new Twilio.Types.PhoneNumber(TwilioHelper.TwilioPhone(_configuration)),
                 to: new Twilio.Types.PhoneNumber(NumberPhone)
             );
 
             Console.WriteLine(message.Sid);
 
-            if (message.Sid == "pending")
+            if (message.Sid == TwilioMessage.SidPending)
             {
                 user.PhoneNumber = NumberPhone;
                 await _userManager.UpdateAsync(user);
 
                 return new ActionAuthResult(ActionStatus.Success, AuthResponse.Success()).GetActionResult();
-            } 
+            }
             else
             {
                 return new ActionAuthResult(ActionStatus.Error, AuthResponse.NotImplemented()).GetActionResult();
