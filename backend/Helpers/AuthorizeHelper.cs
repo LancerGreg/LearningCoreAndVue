@@ -21,9 +21,12 @@ namespace backend.Helpers
             var contain = _context.HttpContext.Session.Keys.Contains(nameof(AppUser));
             var userContext = _context.HttpContext.Session.Get<AuthorizationUser>(nameof(AppUser));
 
-            return contain
-                ? contain
-                : !(userContext.Email == null || userContext.Email == "");
+            if (contain)
+                return contain;
+            else
+                return userContext == null 
+                    ? false 
+                    : !(userContext.Email == null || userContext.Email == "");
         }
 
         public void Authorization(string email) =>
