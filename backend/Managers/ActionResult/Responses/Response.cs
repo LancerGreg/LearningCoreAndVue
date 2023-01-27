@@ -5,7 +5,7 @@
         public string Code { get; set; }
         public int StatusCode { get; set; }
         public string Description { get; set; }
-        public string Message { get; set; }
+        public object Message { get; set; }
     }
 
     public class BaseResponse
@@ -45,7 +45,7 @@
             Description = "The request has succeeded" 
         };
 
-        public static Response Success(string message) => new Response() 
+        public static Response Success(object message) => new Response() 
         { 
             Code = nameof(Success), 
             StatusCode = 200, 

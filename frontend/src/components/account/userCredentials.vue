@@ -106,17 +106,17 @@ extend('max', {
 
 export default {
   data: () => {
-      return {
-        token: "",
-        dialogConfirmToken: false,
-        hasSaved: false,
-        isEditing: null,
-        model: null,
-      }
+    return {
+      token: "",
+      dialogConfirmToken: false,
+      hasSaved: false,
+      isEditing: null,
+      model: null,
+    }
   },
   computed: {
     userProfile () {
-        return store.getters.USERPROFILE;
+      return store.getters.USERPROFILE;
     },
   },
   methods: {

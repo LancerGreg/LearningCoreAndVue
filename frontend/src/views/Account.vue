@@ -1,10 +1,10 @@
 <template>
-    <div>
-        <SignIn v-if="accountState == this.accountStates.OnSignIn" :accountState='accountState' />
-        <SignUp v-if="accountState == this.accountStates.OnSignUp" :accountState='accountState' />
-        <ForggotPassword v-if="accountState == this.accountStates.OnForgotPassword" :accountState='accountState' />
-        <UserCredentials v-if="accountState == this.accountStates.OnUserCredentials" :accountState='accountState' /> 
-    </div>
+  <div>
+    <SignIn v-if="accountState == this.accountStates.OnSignIn" :accountState='accountState' />
+    <SignUp v-if="accountState == this.accountStates.OnSignUp" :accountState='accountState' />
+    <ForggotPassword v-if="accountState == this.accountStates.OnForgotPassword" :accountState='accountState' />
+    <UserCredentials v-if="accountState == this.accountStates.OnUserCredentials" :accountState='accountState' /> 
+  </div>
 </template>
 
 <script>
@@ -19,16 +19,15 @@ export default {
   name: 'Account',
   computed: {
     accountState () {
-        return store.getters.ACCOUNTSTATE;
+      return store.getters.ACCOUNTSTATE;
     },
     accountStates () {
-        return store.getters.ACCOUNTSTATES;
+      return store.getters.ACCOUNTSTATES;
     }
   },
   data: () => {
-      return {
-
-      }
+    return {
+    }
   },
   methods: {
   },

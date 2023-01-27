@@ -1,5 +1,5 @@
 <template>
-    <v-btn color="primary" type="button" @click="onSignUp">Sign Up</v-btn>
+  <v-btn color="primary" type="button" @click="onSignUp">Sign Up</v-btn>
 </template>
 
 <script>

@@ -19,17 +19,17 @@
 </template>
 
 <script>
-  export default {
-    name: 'Home',
-    components: {      
-    },
-  }
+export default {
+  name: 'Home',
+  components: {      
+  },
+}
 </script>
 
 <style scoped>
-  .img-center {
-    display: flex;
-    align-items: center;
-    margin: 0 auto;
-  }
+.img-center {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
 </style>

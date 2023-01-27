@@ -57,18 +57,18 @@ extend('email', {
 
 export default {
   data: () => {
-      return {
-        SignInUser: {
-          Email: "",
-          Password: ""
-        },
-        loader: false,
-        loaderPerams: {
-          size: 40,
-          color: "#1976d2",
-          width: 5
-        },
-      }
+    return {
+      SignInUser: {
+        Email: "",
+        Password: ""
+      },
+      loader: false,
+      loaderPerams: {
+        size: 40,
+        color: "#1976d2",
+        width: 5
+      },
+    }
   },
   methods: {
     toSignIn () {

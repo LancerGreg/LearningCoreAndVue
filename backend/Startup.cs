@@ -2,8 +2,6 @@ using backend.Helpers;
 using backend.Helpers.Interfaces;
 using backend.Managers;
 using backend.Managers.SignalR;
-using backend.Middlewares;
-using backend.Middlewares.Log;
 using backend.Models;
 using backend.Repositories;
 using backend.Services;
@@ -128,8 +126,6 @@ namespace backend
 
             app.UseMvc();
 
-            app.UseMiddleware<JwtMiddleware>();
-            app.UseLogUrl();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

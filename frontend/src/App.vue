@@ -24,19 +24,18 @@ export default {
 </script>
 
 <style scoped>
-  main {
-    padding: 65px 0 0 0 !important ;
-  }
+main {
+  padding: 65px 0 0 0 !important ;
+}
 </style>
 
 <style>
-  .justify-content-between {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .flex-flow-wrap {    
-    flex-flow: wrap;
-    flex: 1 1 100px !important;
-  }
+.justify-content-between {
+  display: flex;
+  justify-content: space-between;
+}
+.flex-flow-wrap {    
+  flex-flow: wrap;
+  flex: 1 1 100px !important;
+}
 </style>

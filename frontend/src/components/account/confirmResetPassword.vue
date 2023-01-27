@@ -7,16 +7,16 @@
     <v-flex xs12 sm6 offset-sm3 mt-3>
       <validation-observer>
         <form @submit.prevent="reserPassword">
-            <validation-provider v-slot="{ errors }" name="password" rules="required|min:8">
-              <v-card-text>
-                <v-text-field type="password" v-model="ReserPassword.NewPassword" :error-messages="errors" label="Password" required></v-text-field>
-              </v-card-text>
-            </validation-provider>
-            <validation-provider v-slot="{ errors }" name="confirmPassword" rules="required|min:8">
-              <v-card-text>
-                <v-text-field type="password" v-model="ReserPassword.ConfirmPassword" :error-messages="errors" label="Confirm password" required></v-text-field>
-              </v-card-text>
-            </validation-provider>
+          <validation-provider v-slot="{ errors }" name="password" rules="required|min:8">
+            <v-card-text>
+              <v-text-field type="password" v-model="ReserPassword.NewPassword" :error-messages="errors" label="Password" required></v-text-field>
+            </v-card-text>
+          </validation-provider>
+          <validation-provider v-slot="{ errors }" name="confirmPassword" rules="required|min:8">
+            <v-card-text>
+              <v-text-field type="password" v-model="ReserPassword.ConfirmPassword" :error-messages="errors" label="Confirm password" required></v-text-field>
+            </v-card-text>
+          </validation-provider>
           <v-flex class="text-xs-center justify-content-between flex-flow-wrap pl-4 pr-4" mt-5>
             <Loader v-if="loader" :loaderPerams="loaderPerams" />
             <v-btn v-else type="submit" color="primary">save</v-btn>

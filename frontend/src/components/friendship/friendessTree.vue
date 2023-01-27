@@ -196,12 +196,12 @@ export default {
         width: 10
       },
       userInfo: {
-          id: "",
-          nodeId: "",
-          fullName: "",
-          thisUser: false,
-          isFriend: false,
-          haveInvite: false,
+        id: "",
+        nodeId: "",
+        fullName: "",
+        thisUser: false,
+        isFriend: false,
+        haveInvite: false,
       },
     }
   },
@@ -388,102 +388,92 @@ export default {
 <style src="vue-d3-network/dist/vue-d3-network.css"></style>
 
 <style scoped>
-  .loader {
-    position: absolute;
-    left: calc(50vw - 50px);
-    top: calc(50vh - 50px); 
-  }
-
-  .graph-box {
-    bottom: 0;
-    box-sizing: content-box;
-    height: calc(100% - 10px);
-    left: 0;
-    max-width: 100%;
-    position: absolute;
-    top: 0;
-    width: 100%;
-  }
-
-  .option-button {
-    position: absolute;
-    display: flex;
-    left: 25px;
-    top: 25px;
-    width: unset !important;
-    height: unset !important;
-    padding: 5px !important;
-  }
-
-  .v-card-option {
-    max-width: 500px;
-  }
-
-  .v-card-user-info {
-    position: absolute;
-    right: 25px;
-    top: 25px;
-    width: unset !important;
-    height: unset !important;
-    padding: 5px;
-    border-radius: 5px;
-    max-width: 500px;
-    margin: 0 0 0 115px;
-  }
-
-  .button-status {
-    margin-right: unset !important;
-    padding: 0 !important;
-    width: 100%;
-  }
-
-  .button-friend {
-    background: #008000 !important;
-  }
-
-  .button-wait {
-    background: #0000ff !important;
-  }
-
-  .button-invite {
-    background: #ffa500 !important;
-  }
-
-  .text-white-space-break-spaces {
-    white-space: break-spaces !important;
-  }
-
-  .v-input--hide-details > .v-input__control > .v-input__slot {
-    display: block !important;
-  }
+.loader {
+  position: absolute;
+  left: calc(50vw - 50px);
+  top: calc(50vh - 50px); 
+}
+.graph-box {
+  bottom: 0;
+  box-sizing: content-box;
+  height: calc(100% - 10px);
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.option-button {
+  position: absolute;
+  display: flex;
+  left: 25px;
+  top: 25px;
+  width: unset !important;
+  height: unset !important;
+  padding: 5px !important;
+}
+.v-card-option {
+  max-width: 500px;
+}
+.v-card-user-info {
+  position: absolute;
+  right: 25px;
+  top: 25px;
+  width: unset !important;
+  height: unset !important;
+  padding: 5px;
+  border-radius: 5px;
+  max-width: 500px;
+  margin: 0 0 0 115px;
+}
+.button-status {
+  margin-right: unset !important;
+  padding: 0 !important;
+  width: 100%;
+}
+.button-friend {
+  background: #008000 !important;
+}
+.button-wait {
+  background: #0000ff !important;
+}
+.button-invite {
+  background: #ffa500 !important;
+}
+.text-white-space-break-spaces {
+  white-space: break-spaces !important;
+}
+.v-input--hide-details > .v-input__control > .v-input__slot {
+  display: block !important;
+}
 </style>
 
 <style>
-  .node-label:hover {
-    position: relative;
-    z-index: 1;
-  }
-  .selected-node-title {
-    fill: #ff0 !important;
-    text-shadow: 1px 1px 2px #000;
-  }
-  .friend-node-title {
-    fill: #f00 !important;
-    text-shadow: 1px 1px 2px #000;
-  }
-  .node {
-    position: relative;
-    z-index: 2;
-  }
+.node-label:hover {
+  position: relative;
+  z-index: 1;
+}
+.selected-node-title {
+  fill: #ff0 !important;
+  text-shadow: 1px 1px 2px #000;
+}
+.friend-node-title {
+  fill: #f00 !important;
+  text-shadow: 1px 1px 2px #000;
+}
+.node {
+  position: relative;
+  z-index: 2;
+}
+.option-input {
+  display: flex !important;
+}
+@media screen and (max-width: 600px) {
   .option-input {
-    display: flex !important;
-  }
-  @media screen and (max-width: 600px) {
-    .option-input {
-      display: block !important;
-    }  
-    .v-list-item-request {
-      flex-direction: column;
-    }  
-  }
+    display: block !important;
+  }  
+  .v-list-item-request {
+    flex-direction: column;
+  }  
+}
 </style>

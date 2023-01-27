@@ -44,7 +44,8 @@ namespace backend.Services
             });
         }
 
-        public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).Count();
+        public async Task<int> GetNotDecideInvitesCount(ClaimsPrincipal curentUser) => 
+            (await GetAllInvites(curentUser)).Where(_ => _.Decide == Decide.NotDecide).Count();
 
         public async Task<IActionResult> InviteRequestById(ClaimsPrincipal curentUser, string userId)
         {
@@ -94,6 +95,8 @@ namespace backend.Services
                 dbContext.Friendships.Add(senderFriendship);
                 dbContext.Friendships.Add(recipientFriendship);
             }
+
+
 
             dbContext.SaveChanges();
 

@@ -38,7 +38,7 @@ export default {
     }
   },
   beforeMount(){
-     this.confirmEmail()
+    this.confirmEmail()
   },
   components: {
     Loader,

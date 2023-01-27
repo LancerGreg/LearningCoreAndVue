@@ -55,105 +55,109 @@ import store from "../../../store"
 import axios from 'axios'
 import Loader from '../../loader/loader.vue'
 
-  export default {
-    components: {
-        Loader
+export default {
+  components: {
+    Loader
+  },
+  data: () => ({
+    dialogAccept: false,
+    dialogDelete: false,
+    loader: false,
+    loaderPerams: {
+      size: 40,
+      color: "#1976d2",
+      width: 5
     },
-    data: () => ({
-      dialogAccept: false,
-      dialogDelete: false,
-      loader: false,
-      loaderPerams: {
-        size: 40,
-        color: "#1976d2",
-        width: 5
+    headers: [
+      {
+        text: 'Full Name',
+        align: 'start',
+        sortable: false,
+        value: 'FullName',
       },
-      headers: [
-        {
-          text: 'Full Name',
-          align: 'start',
-          sortable: false,
-          value: 'FullName',
-        },
-        { text: 'First Name', value: 'FirstName' },
-        { text: 'Last Name', value: 'LastName' },
-        { text: 'When Send', value: 'WhenSend' },
-        { text: 'Accept Invite', value: 'actions', sortable: false },
-      ],
-      invites: [],
-      editedIndex: -1,
-    }),
-
-    computed: {
-      formTitle () {
-        return 'Great! You have new friend!'
+      { 
+        text: 'First Name', 
+        value: 'FirstName' 
       },
+      { 
+        text: 'Last Name', 
+        value: 'LastName' 
+      },
+      { 
+        text: 'When Send', 
+        value: 'WhenSend' 
+      },
+      { 
+        text: 'Accept Invite', 
+        value: 'actions', 
+        sortable: false 
+      },
+    ],
+    invites: [],
+    editedIndex: -1,
+  }),
+  computed: {
+    formTitle () {
+      return 'Great! You have new friend!'
     },
-
-    watch: {
-      dialogDelete (val) {
-        val || this.closeDenie()
-      },
+  },
+  watch: {
+    dialogDelete (val) {
+      val || this.closeDenie()
     },
-
-    created () {
-      this.initialize()
+  },
+  created () {
+    this.initialize()
+  },
+  methods: {
+    initialize () {
+      this.loader = true
+      axios.get(store.getters.URLS.API_URL + "invite/get_not_decide_invites")
+      .then((response) => {          
+        this.invites = response.data
+      }).catch(() => {
+            router.push({ name: "Error_500"})
+      });
+      this.loader = false
     },
-
-    methods: {
-      initialize () {
-        this.loader = true
-        axios.get(store.getters.URLS.API_URL + "invite/get_not_decide_invites")
-        .then((response) => {          
-          this.invites = response.data
-        }).catch(() => {
-              router.push({ name: "Error_500"})
-        });
-        this.loader = false
-      },
-
-      acceptInvite (item) {
-        axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=" + item.InviteId + "&decide=1")
-        .then(() => {
-          this.editedIndex = this.invites.indexOf(item)
-          this.dialogAccept = true        
-        }).catch(() => {
-          router.push({ name: "Error_500"})
-        });
-      },
-
-      denieInvite (item) {
+    acceptInvite (item) {
+      axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=" + item.InviteId + "&decide=1")
+      .then(() => {
         this.editedIndex = this.invites.indexOf(item)
-        this.dialogDelete = true
-      },
-
-      denieInviteConfirm () {
-        axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=" + this.invites[this.editedIndex].InviteId + "&decide=0")
-        .then(() => {
-          this.invites.splice(this.editedIndex, 1)
-          this.closeDenie()
-        }).catch(() => {
-          this.closeDenie()
-          router.push({ name: "Error_500"})
-        });
-      },
-
-      closeAccept () {
-        this.invites.splice(this.editedIndex, 1)
-        this.dialogAccept = false
-        this.$nextTick(() => {
-          this.editedIndex = -1
-        })
-      },
-
-      closeDenie () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedIndex = -1
-        })
-      },
+        this.dialogAccept = true        
+      }).catch(() => {
+        router.push({ name: "Error_500"})
+      });
     },
-  }
+    denieInvite (item) {
+      this.editedIndex = this.invites.indexOf(item)
+      this.dialogDelete = true
+    },
+    denieInviteConfirm () {
+      axios.post(store.getters.URLS.API_URL + "invite/confirm_invite?inviteId=" + this.invites[this.editedIndex].InviteId + "&decide=0")
+      .then(() => {
+        this.invites.splice(this.editedIndex, 1)
+        this.closeDenie()
+      }).catch(() => {
+        this.closeDenie()
+        router.push({ name: "Error_500"})
+      });
+    },
+    closeAccept () {
+      this.invites.splice(this.editedIndex, 1)
+      this.dialogAccept = false
+      this.$nextTick(() => {
+        this.editedIndex = -1
+      })
+    },
+    closeDenie () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedIndex = -1
+      })
+    },
+  },
+}
 </script>
 
 <style scoped>

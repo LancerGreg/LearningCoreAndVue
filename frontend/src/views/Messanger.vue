@@ -474,8 +474,8 @@ export default {
     this.initSignalR()
   }
 }
-
 </script>
+
 <style>
 .container {
   padding: 0;

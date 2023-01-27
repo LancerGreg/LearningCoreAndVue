@@ -1,5 +1,5 @@
 <template>
-    <v-btn color="primary" type="button" @click="onSignIn">Already Registered?</v-btn>
+  <v-btn color="primary" type="button" @click="onSignIn">Already Registered?</v-btn>
 </template>
 
 <script>

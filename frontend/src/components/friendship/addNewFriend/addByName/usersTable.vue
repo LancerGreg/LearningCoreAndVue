@@ -66,54 +66,69 @@ import axios from 'axios'
 export default {
   props: ['match', "search"],
   data() {
-        return {
-            totalUsers: 0,
-            users: [],
-            editedIndex: -1,
-            loading: true,
-            options: {},
-            headers: [
-                {
-                    text: "Full Name",
-                    align: "left",
-                    sortable: false,
-                    value: "FullName",
-                    width: '30%'
-                },
-                { text: "First Name", value: "FirstName", sortable: false, width: '25%' },
-                { text: "Last Name", value: "LastName", sortable: false, width: '25%' },
-                { text: 'Send Invite', value: 'actions', sortable: false },
-            ],
-            dialogFriendship: false,
-            dialogInvite: false,
-            dialogWait: false
-        };
-    },
+    return {
+      totalUsers: 0,
+      users: [],
+      editedIndex: -1,
+      loading: true,
+      options: {},
+      headers: [
+        {
+            text: "Full Name",
+            align: "left",
+            sortable: false,
+            value: "FullName",
+            width: '30%'
+        },
+        { 
+          text: "First Name", 
+          value: "FirstName", 
+          sortable: false, 
+          width: '25%' 
+        },
+        { 
+          text: "Last Name", 
+          value: "LastName", 
+          sortable: false, 
+          width: '25%' 
+        },
+        { 
+          text: 
+          'Send Invite', 
+          value: 'actions', 
+          sortable: false 
+        },
+      ],
+      dialogFriendship: false,
+      dialogInvite: false,
+      dialogWait: false
+    };
+  },
     watch: {
-        params: {
-            handler() {
-                this.getDataFromApi().then(data => {
-                    this.users = data.items;
-                    this.totalUsers = data.total;
-                });
-            },
-            deep: true
-        }
-    },
-    async mounted() {
-        await this.getDataFromApi().then(data => {
+      params: {
+        handler() {
+          this.getDataFromApi().then(data => {
             this.users = data.items;
             this.totalUsers = data.total;
-        });
+          });
+        },
+        deep: true
+      }
+    },
+    async mounted() {
+      await this.getDataFromApi().then(data => {
+        this.users = data.items;
+        this.totalUsers = data.total;
+      });
     },
 
     computed: {
-        params() {
-            return {
-                ...this.options,
-                query: this.search
-            };
-        },
+      params() {
+        return {
+          ...this.options,
+          query: this.search
+        };
+      },
       dialogFriendshipTitle () {
         return 'You are already friends!'
       },
@@ -123,124 +138,122 @@ export default {
     },
 
     methods: {
-        async getDataFromApi() {
-            this.loading = true;
-            let search = this.search.trim().toLowerCase();
-            let items = await this.getUsers(search);
-            return new Promise((resolve) => {
-                const {
-                    sortBy,
-                    descending,
-                    page,
-                    rowsPerPage
-                } = this.options;
+      async getDataFromApi() {
+          this.loading = true;
+          let search = this.search.trim().toLowerCase();
+          let items = await this.getUsers(search);
+          return new Promise((resolve) => {
+              const {
+                sortBy,
+                descending,
+                page,
+                rowsPerPage
+              } = this.options;
 
-                if (search) {
-                    items = items.filter(item => {
-                        return Object.values(item)
-                            .join(",")
-                            .toLowerCase()
-                    });
-                }
-
-                if (this.options.sortBy) {
-                    items = items.sort((a, b) => {
-                        const sortA = a[sortBy];
-                        const sortB = b[sortBy];
-
-                        if (descending) {
-                            if (sortA < sortB) return 1;
-                            if (sortA > sortB) return -1;
-                            return 0;
-                        } else {
-                            if (sortA < sortB) return -1;
-                            if (sortA > sortB) return 1;
-                            return 0;
-                        }
-                    });
-                }
-
-                if (rowsPerPage > 0) {
-                    items = items.slice(
-                        (page - 1) * rowsPerPage,
-                        page * rowsPerPage
-                    );
-                }
-                
-                const total = items.length;
-                
-
-                setTimeout(() => {
-                    this.loading = false;
-                    resolve({
-                        items,
-                        total
-                    });
-                }, 300);
-            });
-        },
-        async getUsers(search) {
-          if (search) {
-            let firstName = /\S/.test(search) ? search.split(" ")[0] : search
-            let lastName = /\S/.test(search) ? search.split(" ").slice(1).join(" ") : ""
-            let users;
-            await axios.get(store.getters.URLS.API_URL + "friend/get_user_by_name?firstName=" + firstName + "&lastName=" + lastName)
-            .then((response) => {
-              if (this.$props.match == "Best Match") {
-                users = response.data.Item1
+              if (search) {
+                items = items.filter(item => {
+                  return Object.values(item)
+                    .join(",")
+                    .toLowerCase()
+                });
               }
-              if (this.$props.match == "Other Match") {
-                users = response.data.Item2
+              
+              if (this.options.sortBy) {
+                items = items.sort((a, b) => {
+                  const sortA = a[sortBy];
+                  const sortB = b[sortBy];
+                  if (descending) {
+                    if (sortA < sortB) return 1;
+                    if (sortA > sortB) return -1;
+                    return 0;
+                  } else {
+                    if (sortA < sortB) return -1;
+                    if (sortA > sortB) return 1;
+                    return 0;
+                  }
+                });
               }
-            }).catch(() => {
-              router.push({ name: "Error_500"})
-              return []
-            });
-            return users;
-          } else {
+              
+              if (rowsPerPage > 0) {
+                items = items.slice(
+                  (page - 1) * rowsPerPage,
+                  page * rowsPerPage
+                );
+              }
+              
+              const total = items.length;
+              
+              setTimeout(() => {
+                this.loading = false;
+                resolve({
+                  items,
+                  total
+                });
+              }, 300);
+          });
+      },
+      async getUsers(search) {
+        if (search) {
+          let firstName = /\S/.test(search) ? search.split(" ")[0] : search
+          let lastName = /\S/.test(search) ? search.split(" ").slice(1).join(" ") : ""
+          let users;
+          await axios.get(store.getters.URLS.API_URL + "friend/get_user_by_name?firstName=" + firstName + "&lastName=" + lastName)
+          .then((response) => {
+            if (this.$props.match == "Best Match") {
+              users = response.data.Item1
+            }
+            if (this.$props.match == "Other Match") {
+              users = response.data.Item2
+            }
+          }).catch(() => {
+            router.push({ name: "Error_500"})
             return []
-          }
-        },
-        closeDialogFriendship() {
-            this.dialogFriendship = false;
-        },
-        showDialogFriendship() {
-            this.dialogFriendship = true;
-        },
-        closeDialogWait() {
-            this.dialogWait = false;
-        },
-        showDialogWait() {
-            this.dialogWait = true;
-        },
-        showInvite (item) {
-          this.editedIndex = this.users.indexOf(item)
-          this.dialogInvite = true
-        },
-        closeDialogInvite() {
-          this.editedIndex = -1
-          this.dialogInvite = false
-        },
-        sendInvite() {
-            axios.post(store.getters.URLS.API_URL + "invite/invite_request_by_id?userId=" + this.users[this.editedIndex].UserId)
-            .then(() => {
-              this.closeDialogInvite()
-              this.getDataFromApi().then(data => {
-                this.users = data.items;
-                this.totalUsers = data.total;
-              });
-            }).catch(() => {
-              this.closeDenie()
-              router.push({ name: "Error_500"})
-            });
+          });
+          return users;
+        } else {
+          return []
         }
+      },
+      closeDialogFriendship() {
+        this.dialogFriendship = false;
+      },
+      showDialogFriendship() {
+        this.dialogFriendship = true;
+      },
+      closeDialogWait() {
+        this.dialogWait = false;
+      },
+      showDialogWait() {
+        this.dialogWait = true;
+      },
+      showInvite (item) {
+        this.editedIndex = this.users.indexOf(item)
+        this.dialogInvite = true
+      },
+      closeDialogInvite() {
+        this.editedIndex = -1
+        this.dialogInvite = false
+      },
+      sendInvite() {
+        axios.post(store.getters.URLS.API_URL + "invite/invite_request_by_id?userId=" + this.users[this.editedIndex].UserId)
+        .then(() => {
+          this.closeDialogInvite()
+          this.getDataFromApi().then(data => {
+            this.users = data.items;
+            this.totalUsers = data.total;
+          });
+        }).catch(() => {
+          this.closeDenie()
+          router.push({ name: "Error_500"})
+        });
+      }
     }
 }
 </script>
 
 <style scoped>
 .v-icon-action {
-    margin: 0 0 0 10px;
-    padding: 2px;
+  margin: 0 0 0 10px;
+  padding: 2px;
 }
 </style>

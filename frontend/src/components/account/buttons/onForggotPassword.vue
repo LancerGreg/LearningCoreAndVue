@@ -1,9 +1,10 @@
 <template>
-    <v-btn color="primary" type="button" @click="onForggotPassword">Forggot password?</v-btn>
+  <v-btn color="primary" type="button" @click="onForggotPassword">Forggot password?</v-btn>
 </template>
 
 <script>
 import store from '../../../store'
+
 
 export default {
   methods: {

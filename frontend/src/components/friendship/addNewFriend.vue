@@ -59,21 +59,18 @@ export default {
 </script>
 
 <style scoped>
-  #lateral .v-btn--example {
-    bottom: 0;
-    position: absolute;
-    margin: 0 0 16px 16px;
-  }
-  
-  .v-tabs {
-    border-bottom: 2px solid aliceblue;
-  }
-
-  .v-tab {
-    font-size: 24px;
-  }
-
-  .v-bar-title {
-    color: rgba(0, 0, 0, 1) !important;
-  }
+#lateral .v-btn--example {
+  bottom: 0;
+  position: absolute;
+  margin: 0 0 16px 16px;
+}
+.v-tabs {
+  border-bottom: 2px solid aliceblue;
+}
+.v-tab {
+  font-size: 24px;
+}
+.v-bar-title {
+  color: rgba(0, 0, 0, 1) !important;
+}
 </style>
